@@ -10,7 +10,7 @@ leopeng、victorwwang
 #### 任务情况
 |任务编号|任务项|任务目标|完成进度|完成耗时|
 |:--:|:--:|:--:|:--:|:--:|
-|1|Android开发实战（二）|1.基于RecyclerView实现同样功能，比较两种实现方式优缺点，并整理输出；2.实现图片异步加载，RecyclerView中展示图书封面；3.自己实现图片内存缓存管理，基于LRU策略；|TODO：|TODO：|
+|1|Android开发实战（二）|1.基于RecyclerView实现同样功能，比较两种实现方式优缺点，并整理输出；2.实现图片异步加载，RecyclerView中展示图书封面；3.自己实现图片内存缓存管理，基于LRU策略；|30% |0.5d |
 |2|手Q看点业务代码熟悉(组件化分支)|1.熟悉数据层，包括存储、协议等；2.熟悉业务层，各个Module、Manger作用等；3.熟悉UI层，各种Feeds样式结构，以及Feeds样式如何在ListView中展示等；4.笔记输出，比如类图等；|TODO：|TODO：|
 |3|看点Bug修复|1.熟悉手Q开发规范；2.进一步加深对业务代码理解，鼓励对现有不合理代码提出修改意见；|TODO：|TODO：|
 
@@ -23,7 +23,7 @@ leopeng、victorwwang
 #### 学习心得
 
 1. Android开发实战（二）
-> TODO：
+> - 使用RecyclerView和CardView实现了相同的功能。
 
 2. 手Q看点业务代码熟悉(组件化分支)
 > TODO：
