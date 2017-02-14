@@ -9,12 +9,14 @@ public class Book {
     private String author;
     private String bookDescription;
     private String status;
+    private String imageURL;
 
-    public Book(String bookName, String author, String bookDescription, String status) {
+    public Book(String bookName, String author, String bookDescription, String status, String imageURL) {
         this.bookName = bookName;
         this.author = author;
         this.bookDescription = bookDescription;
         this.status = status;
+        this.imageURL = imageURL;
     }
 
     public String getBookName() {
@@ -47,5 +49,9 @@ public class Book {
         }
 
         return res;
+    }
+
+    public String getImageURL() {
+        return this.imageURL;
     }
 }

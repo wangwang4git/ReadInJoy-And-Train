@@ -4,6 +4,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         TextView authorName;
         TextView status;
         TextView summary;
+        ImageView imageView;
 
         public ViewHolder(CardView view) {
             super(view);
@@ -30,6 +32,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
             authorName = (TextView) view.findViewById(R.id.author);
             status = (TextView) view.findViewById(R.id.status);
             summary = (TextView) view.findViewById(R.id.bookDescription);
+            imageView = (ImageView) view.findViewById(R.id.thumbImage);
         }
     }
 
@@ -50,6 +53,9 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         holder.authorName.setText(books.get(position).getAuthor());
         holder.status.setText(books.get(position).getStatus());
         holder.summary.setText(books.get(position).getBookDescription());
+        if (holder.imageView != null) {
+            new ImageDownloaderTask(holder.imageView).execute(books.get(position).getImageURL());
+        }
     }
 
     @Override
