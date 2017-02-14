@@ -1,0 +1,64 @@
+package com.example.leopeng.recyclerviewdemo;
+
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+/**
+ * Created by leopeng on 13/02/2017.
+ */
+
+public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
+    private ArrayList<Book> books;
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        // each data item is just a string in this case
+        public CardView cardView;
+        TextView bookName;
+        TextView authorName;
+        TextView status;
+        TextView summary;
+
+        public ViewHolder(CardView view) {
+            super(view);
+            cardView = view;
+            bookName = (TextView) view.findViewById(R.id.bookName);
+            authorName = (TextView) view.findViewById(R.id.author);
+            status = (TextView) view.findViewById(R.id.status);
+            summary = (TextView) view.findViewById(R.id.bookDescription);
+        }
+    }
+
+    public BookAdapter(ArrayList<Book> books) {
+        this.books = books;
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        CardView cardView = (CardView) LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item, parent, false);
+        ViewHolder viewHolder = new ViewHolder(cardView);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.bookName.setText(books.get(position).getBookName());
+        holder.authorName.setText(books.get(position).getAuthor());
+        holder.status.setText(books.get(position).getStatus());
+        holder.summary.setText(books.get(position).getBookDescription());
+    }
+
+    @Override
+    public int getItemCount() {
+        return books.size();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+    }
+}
