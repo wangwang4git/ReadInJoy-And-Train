@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.LruCache;
 import android.widget.ImageView;
 
 import java.io.InputStream;
@@ -18,9 +19,11 @@ import java.net.URL;
 
 public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
     private final WeakReference<ImageView> imageViewWeakReference;
+    private final LruCache<String, Bitmap> bitmapLruCache;
 
-    public ImageDownloaderTask(ImageView imageView) {
-        imageViewWeakReference = new WeakReference<ImageView>(imageView);
+    public ImageDownloaderTask(ImageView imageView, LruCache cache) {
+        imageViewWeakReference = new WeakReference<>(imageView);
+        bitmapLruCache = (LruCache<String, Bitmap>) cache;
     }
 
     @Override
@@ -49,6 +52,17 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
     private Bitmap downloadBitmap(String url) {
         HttpURLConnection urlConnection = null;
         try {
+
+            if (bitmapLruCache != null) {
+                synchronized (bitmapLruCache) {
+                    if (url != null && bitmapLruCache.get(url) != null) {
+                        Log.d("Cache Size: ", Integer.toString(bitmapLruCache.size()));
+                        return bitmapLruCache.get(url);
+                    }
+                }
+            }
+
+
             URL uri = new URL(url);
             urlConnection = (HttpURLConnection) uri.openConnection();
             int statusCode = urlConnection.getResponseCode();
@@ -59,6 +73,14 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
             InputStream inputStream = urlConnection.getInputStream();
             if (inputStream != null) {
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                if (bitmapLruCache != null) {
+                    synchronized (bitmapLruCache) {
+                        if (bitmapLruCache.get(url) == null) {
+                            bitmapLruCache.put(url, bitmap);
+                            Log.d("Cache image: ", url);
+                        }
+                    }
+                }
                 return bitmap;
             }
         } catch (Exception e) {

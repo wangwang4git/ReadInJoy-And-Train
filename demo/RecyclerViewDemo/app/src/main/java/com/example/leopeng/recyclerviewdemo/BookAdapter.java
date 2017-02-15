@@ -1,7 +1,9 @@
 package com.example.leopeng.recyclerviewdemo;
 
+import android.graphics.Bitmap;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     private ArrayList<Book> books;
+    LruCache<String, Bitmap> cache;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
@@ -36,8 +39,9 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         }
     }
 
-    public BookAdapter(ArrayList<Book> books) {
+    public BookAdapter(ArrayList<Book> books, LruCache cache) {
         this.books = books;
+        this.cache = cache;
     }
 
     @Override
@@ -54,7 +58,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         holder.status.setText(books.get(position).getStatus());
         holder.summary.setText(books.get(position).getBookDescription());
         if (holder.imageView != null) {
-            new ImageDownloaderTask(holder.imageView).execute(books.get(position).getImageURL());
+            new ImageDownloaderTask(holder.imageView, cache).execute(books.get(position).getImageURL());
         }
     }
 

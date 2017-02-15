@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.View;
 import android.widget.EditText;
 
@@ -25,6 +26,13 @@ public class MainActivity extends AppCompatActivity {
     public static String BOOKJSONKEY = "BOOKJSON";
     public static String USERNAMEKEY = "USERNAMEKEY";
 
+    private final LruCache<String, String> lruCache;
+    private final static int cacheSize = 4 * 1024 * 1024;
+
+    public MainActivity() {
+        lruCache = new LruCache<>(cacheSize);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +45,17 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("Username: ", username);
 
-        new JsonTask().execute("https://api.douban.com/v2/book/user/" + username +"/collections?count=100");
+        synchronized (lruCache) {
+            if (lruCache.get(username) != null) {
+                Intent intent = new Intent(this, RecyclerViewActivity.class);
+                intent.putExtra(BOOKJSONKEY, lruCache.get(username));
+                intent.putExtra(USERNAMEKEY, username);
+
+                startActivity(intent);
+            } else {
+                new JsonTask().execute("https://api.douban.com/v2/book/user/" + username +"/collections?count=100");
+            }
+        }
     }
 
     private class JsonTask extends AsyncTask<String, String, String> {
@@ -79,6 +97,12 @@ public class MainActivity extends AppCompatActivity {
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line + "\n");
                     Log.d("Response: ", "> " + line);
+                }
+
+                synchronized (lruCache) {
+                    if (lruCache.get(username) == null) {
+                        lruCache.put(username, buffer.toString());
+                    }
                 }
 
                 return buffer.toString();

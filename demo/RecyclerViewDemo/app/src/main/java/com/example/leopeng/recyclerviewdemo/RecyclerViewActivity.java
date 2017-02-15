@@ -2,6 +2,7 @@ package com.example.leopeng.recyclerviewdemo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -11,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,6 +35,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
 
     private ArrayList<Book> bookList;
+    private static int cacheSize = 40 * 1024 * 1024;
+    LruCache<String, Bitmap> bitmapLruCache;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +56,11 @@ public class RecyclerViewActivity extends AppCompatActivity {
         VerticalDividerItemDecoration verticalDividerItemDecoration = new VerticalDividerItemDecoration(10);
         recyclerView.addItemDecoration(verticalDividerItemDecoration);
 
-        adapter = new BookAdapter(bookList);
-        recyclerView.setAdapter(adapter);
+        this.bitmapLruCache = new LruCache<String, Bitmap>(cacheSize) {
+        };
 
+        adapter = new BookAdapter(bookList, bitmapLruCache);
+        recyclerView.setAdapter(adapter);
 
     }
 
@@ -84,8 +91,8 @@ public class RecyclerViewActivity extends AppCompatActivity {
                 Log.d("total", "total: " + total);
 
                 if (Integer.parseInt(total) > 0) {
-                    Book bookNumber = new Book(username + " 一共收藏了 " + total + " 本图书", "", "一次最多显示 100 本图书信息", "", "");
-                    bookList.add(bookNumber);
+//                  Book bookNumber = new Book(username + " 一共收藏了 " + total + " 本图书", "", "一次最多显示 100 本图书信息", "", "");
+//                   bookList.add(bookNumber);
                 }
 
                 JSONArray jsonArray = json.getJSONArray("collections");
