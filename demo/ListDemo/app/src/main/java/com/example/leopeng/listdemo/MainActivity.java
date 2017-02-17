@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         EditText editText = (EditText) findViewById(R.id.username);
         username = editText.getText().toString();
 
+        // 对于日志输出，可以按页面或者功能配置一个TAG，然后在调用处传入统一的TAG
         Log.d("Username: ", username);
 
         new JsonTask().execute("https://api.douban.com/v2/book/user/" + username +"/collections?count=100");
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ListView.class);
             intent.putExtra(BOOKJSONKEY, s);
 
+            // 这里是不是用一个成员变量效率更高一点？
             EditText editText = (EditText) findViewById(R.id.username);
             username = editText.getText().toString();
             intent.putExtra(USERNAMEKEY, username);
