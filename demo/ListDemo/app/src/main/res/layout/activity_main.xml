@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     tools:context="com.example.leopeng.listdemo.MainActivity">>
+    <!--// 代码错误，多了一个>-->
 
+    <!--// 对应xml的命令空间的声明，放在根节点就可以了，其他节点不需要了，参考xml语法-->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/activity_main"
@@ -17,6 +19,7 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:orientation="horizontal"
         tools:context="com.example.leopeng.listdemo.MainActivity">
+        <!--// 对于tools:context的使用，也是只在根节点声明就可，可以参考相关用法-->
 
         <EditText
         android:layout_width="wrap_content"
@@ -37,6 +40,8 @@
         android:onClick="jsonTask"
         android:layout_weight="0"
         />
+        <!--// android:onClick 赞，用上了databinding特性，不过目前手Q都没有用这个，还是最原始的方式，这个新特性后面有时间可以了解下，小组分享下-->
     </LinearLayout>
 
 </LinearLayout>
+<!--// 布局这里，可以发现没必要两层linear嵌套，因为布局层次嵌套的越深，ui渲染的效率会越低，减少ui层次也是ui布局优化的常用手段-->

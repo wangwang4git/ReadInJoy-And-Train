@@ -43,6 +43,7 @@ public class BookListAdapter extends BaseAdapter {
 
         Book currentBook = (Book) getItem(position);
 
+        // 看一看listview的viewholder实现机制，如何做到itemview优雅的复用，这些findViewById都是不用重复执行的
         TextView textViewBookName = (TextView)convertView.findViewById(R.id.bookName);
         TextView textViewAuthor = (TextView)convertView.findViewById(R.id.author);
         TextView textViewBookDescription = (TextView)convertView.findViewById(R.id.bookDescription);

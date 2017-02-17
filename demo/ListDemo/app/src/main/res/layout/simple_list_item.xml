@@ -7,6 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+        <!--// 还是这个命令空间的问题-->
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -54,4 +55,8 @@
         android:paddingRight="30dp">
     </TextView>
 </LinearLayout>
+<!--// 相对布局能力是比较强悍的，可以思考下如何把你这个嵌套的两层布局，优化为一层相对布局-->
 
+<!--// 这个实现的ui还是不优雅，个人想到的改进方向，学习demo功能是一方面，实现的优雅也是要自己多多琢磨哈：-->
+<!--1. 已读，未读，在读，ui上区别度不高，可以用不同的颜色；-->
+<!--2. 数据摘要太长了，是否可以截取；-->
