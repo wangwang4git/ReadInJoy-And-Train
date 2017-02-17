@@ -40,3 +40,5 @@ captures/
 *.jks
 
 some_learn_doc/
+
+.DS_Store
