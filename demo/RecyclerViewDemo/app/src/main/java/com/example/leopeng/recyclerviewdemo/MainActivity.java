@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class JsonTask extends AsyncTask<String, String, String> {
+    private class JsonTask extends AsyncTask<String, Integer, String> {
 
         private volatile boolean running = true;
 
@@ -88,8 +89,28 @@ public class MainActivity extends AppCompatActivity {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
+                int i = 0;
+                Random random = new Random();
+                int stopTime = random.nextInt(35);
+                while (i <= stopTime) {
+                    try {
+                        Thread.sleep(15);
+                        publishProgress(i);
+                        Log.d("per", "percent: " + i);
+                        i++;
+                    }
+                    catch (Exception e) {
+                        Log.i("makemachine", e.getMessage());
+                    }
+                }
+                Long timeStart = System.currentTimeMillis();
+                Log.d("Reader", "Reader begin! ");
+
                 InputStream stream = connection.getInputStream();
+                Log.d("Timeout", "time: " + connection.getConnectTimeout());
                 reader = new BufferedReader(new InputStreamReader(stream));
+
+                Log.d("Reader", "Reader got! " + (System.currentTimeMillis() - timeStart));
 
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
@@ -102,6 +123,18 @@ public class MainActivity extends AppCompatActivity {
                 synchronized (lruCache) {
                     if (lruCache.get(username) == null) {
                         lruCache.put(username, buffer.toString());
+                    }
+                }
+
+                while (i <= 50) {
+                    try {
+                        Thread.sleep(25);
+                        publishProgress(i);
+                        Log.d("per", "percent: " + i);
+                        i++;
+                    }
+                    catch (Exception e) {
+                        Log.i("makemachine", e.getMessage());
                     }
                 }
 
@@ -143,6 +176,14 @@ public class MainActivity extends AppCompatActivity {
 
             if (running) {
                 startActivity(intent);
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... percent) {
+            if (running) {
+                super.onProgressUpdate(percent);
+                progressDialog.setMessage(percent[0] * 2 + "%");
             }
         }
 
