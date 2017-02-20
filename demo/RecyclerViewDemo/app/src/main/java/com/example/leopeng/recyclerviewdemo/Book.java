@@ -10,6 +10,7 @@ public class Book {
     private String bookDescription;
     private String status;
     private String imageURL;
+    private int statusColor;
 
     public Book(String bookName, String author, String bookDescription, String status, String imageURL) {
         this.bookName = bookName;
@@ -37,12 +38,15 @@ public class Book {
         switch (this.status) {
             case "wish":
                 res = "想读";
+                statusColor = 0xFFF0B27A;
                 break;
             case "reading":
                 res = "在读";
+                statusColor = 0xFF5DADE2;
                 break;
             case "read":
                 res = "读过";
+                statusColor = 0xFF58D68D;
                 break;
             default:
                 res = "";
@@ -53,5 +57,9 @@ public class Book {
 
     public String getImageURL() {
         return this.imageURL;
+    }
+
+    public int getStatusColor() {
+        return this.statusColor;
     }
 }

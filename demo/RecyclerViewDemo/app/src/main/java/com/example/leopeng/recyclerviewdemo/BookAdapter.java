@@ -56,6 +56,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         holder.bookName.setText(books.get(position).getBookName());
         holder.authorName.setText(books.get(position).getAuthor());
         holder.status.setText(books.get(position).getStatus());
+        holder.status.setTextColor(books.get(position).getStatusColor());
         holder.summary.setText(books.get(position).getBookDescription());
         if (holder.imageView != null) {
             new ImageDownloaderTask(holder.imageView, cache).execute(books.get(position).getImageURL());

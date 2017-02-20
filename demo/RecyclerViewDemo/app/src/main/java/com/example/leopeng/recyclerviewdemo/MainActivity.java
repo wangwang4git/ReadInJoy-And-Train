@@ -24,8 +24,10 @@ public class MainActivity extends AppCompatActivity {
 
     private String username;
     private ProgressDialog progressDialog;
+    private EditText editText;
     public static String BOOKJSONKEY = "BOOKJSON";
     public static String USERNAMEKEY = "USERNAMEKEY";
+    public final static String MAINACTIVITYTAG = "MainActivity";
 
     private final LruCache<String, String> lruCache;
     private final static int cacheSize = 4 * 1024 * 1024;
@@ -38,13 +40,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        editText = (EditText) findViewById(R.id.username);
     }
 
     public void jsonTask(View view) {
-        EditText editText = (EditText) findViewById(R.id.username);
         username = editText.getText().toString();
 
-        Log.d("Username: ", username);
+        Log.d(MAINACTIVITYTAG, "Username: " + username);
 
         synchronized (lruCache) {
             if (lruCache.get(username) != null) {
@@ -54,7 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivity(intent);
             } else {
-                new JsonTask().execute("https://api.douban.com/v2/book/user/" + username +"/collections?count=100");
+                String url = "https://api.douban.com/v2/book/user/" + username + "/collections?count=100";
+                Log.d(MAINACTIVITYTAG, url);
+                new JsonTask().execute(url);
             }
         }
     }
@@ -96,21 +101,19 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Thread.sleep(15);
                         publishProgress(i);
-                        Log.d("per", "percent: " + i);
                         i++;
                     }
                     catch (Exception e) {
-                        Log.i("makemachine", e.getMessage());
+                        Log.i(MAINACTIVITYTAG, e.getMessage());
                     }
                 }
                 Long timeStart = System.currentTimeMillis();
-                Log.d("Reader", "Reader begin! ");
+                Log.d(MAINACTIVITYTAG, "Reader begin! ");
 
                 InputStream stream = connection.getInputStream();
-                Log.d("Timeout", "time: " + connection.getConnectTimeout());
                 reader = new BufferedReader(new InputStreamReader(stream));
 
-                Log.d("Reader", "Reader got! " + (System.currentTimeMillis() - timeStart));
+                Log.d(MAINACTIVITYTAG, "Reader finish! " + (System.currentTimeMillis() - timeStart));
 
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
@@ -130,11 +133,10 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Thread.sleep(25);
                         publishProgress(i);
-                        Log.d("per", "percent: " + i);
                         i++;
                     }
                     catch (Exception e) {
-                        Log.i("makemachine", e.getMessage());
+                        Log.i(MAINACTIVITYTAG, e.getMessage());
                     }
                 }
 
@@ -170,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, RecyclerViewActivity.class);
             intent.putExtra(BOOKJSONKEY, s);
 
-            EditText editText = (EditText) findViewById(R.id.username);
             username = editText.getText().toString();
             intent.putExtra(USERNAMEKEY, username);
 

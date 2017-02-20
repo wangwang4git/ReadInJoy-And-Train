@@ -38,6 +38,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private static int cacheSize = 40 * 1024 * 1024;
     LruCache<String, Bitmap> bitmapLruCache;
 
+    public final static String RECYCLERVIEWACTIVITYTAG = "RecyclerViewActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         JSONParse(intent);
-        Log.d("bookList", "bookList Size: " + bookList.size());
+        Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
 
         if (bookList.size() == 0) {
             Book noBooksInfo = new Book("该用户没有收藏任何书本。", "", "", "", "");
@@ -79,16 +80,16 @@ public class RecyclerViewActivity extends AppCompatActivity {
         String books= intent.getStringExtra(MainActivity.BOOKJSONKEY);
         String username = intent.getStringExtra(MainActivity.USERNAMEKEY);
 
-        if (books != null && books != "") {
+        if (books != null && !books.isEmpty() ) {
             try {
                 JSONObject json = new JSONObject(books);
                 String count = json.getString("count");
                 String start = json.getString("start");
                 String total = json.getString("total");
 
-                Log.d("count", "count: " + count);
-                Log.d("start", "start: " + start);
-                Log.d("total", "total: " + total);
+                Log.d(RECYCLERVIEWACTIVITYTAG, "count: " + count);
+                Log.d(RECYCLERVIEWACTIVITYTAG, "start: " + start);
+                Log.d(RECYCLERVIEWACTIVITYTAG, "total: " + total);
 
                 if (Integer.parseInt(total) > 0) {
 //                  Book bookNumber = new Book(username + " 一共收藏了 " + total + " 本图书", "", "一次最多显示 100 本图书信息", "", "");
@@ -109,9 +110,10 @@ public class RecyclerViewActivity extends AppCompatActivity {
                         JSONArray author = bookInfo.getJSONArray("author");
                         String authorName = "";
 
-                        for (int j = 0; j < author.length(); j++) {
+                        int maxAuthorNumber = Math.min(5, author.length());
+                        for (int j = 0; j < maxAuthorNumber; j++) {
                             authorName += author.getString(j);
-                            if (j + 1 != author.length()) {
+                            if (j + 1 != maxAuthorNumber) {
                                 authorName += ", ";
                             }
                         }
