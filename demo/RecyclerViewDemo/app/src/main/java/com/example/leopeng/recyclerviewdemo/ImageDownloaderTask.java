@@ -66,14 +66,14 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
                     if (bitmapLruCache.get(url) != null) {
                         Log.d(ImageDownloaderTask.class.getName(), "Image hit memory cache.");
                         return bitmapLruCache.get(url);
-                    } else {
-                        Bitmap bitmap = getImageFromDisk(url);
-                        // Hit disk cache
-                        if (bitmap != null) {
-                            return bitmap;
-                        }
                     }
                 }
+            }
+
+            // Hit disk cache
+            Bitmap bitmap = getImageFromDisk(url);
+            if (bitmap != null) {
+                return bitmap;
             }
 
             URL uri = new URL(url);
@@ -85,7 +85,7 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
 
             InputStream inputStream = urlConnection.getInputStream();
             if (inputStream != null) {
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                bitmap = BitmapFactory.decodeStream(inputStream);
                 if (bitmapLruCache != null) {
                     // Store bitmap to memory cache
                     synchronized (bitmapLruCache) {

@@ -11,6 +11,10 @@ import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,6 +26,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,16 +60,17 @@ public class MainActivity extends AppCompatActivity {
 
         synchronized (lruCache) {
             // Hit memory cache
-            if (lruCache.get(username) != null) {
+            String jsonString = lruCache.get(username);
+            if (jsonString != null && !jsonString.isEmpty()) {
                 Intent intent = new Intent(this, RecyclerViewActivity.class);
                 intent.putExtra(BOOKJSONKEY, lruCache.get(username));
                 intent.putExtra(USERNAMEKEY, username);
                 Log.d(MAINACTIVITYTAG, "Hit memory cache!");
                 startActivity(intent);
             } else {
-                String jsonString = getUserCacheJSONString();
                 // Hit disk cache
-                if (jsonString != null) {
+                jsonString = getUserCacheJSONString();
+                if (jsonString != null && !jsonString.isEmpty()) {
                     Intent intent = new Intent(this, RecyclerViewActivity.class);
                     intent.putExtra(BOOKJSONKEY, jsonString);
                     intent.putExtra(USERNAMEKEY, username);
@@ -101,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     private class JsonTask extends AsyncTask<String, Integer, String> {
 
         private volatile boolean running = true;
+        private volatile boolean network = true;
 
         @Override
         protected void onPreExecute() {
@@ -159,13 +166,16 @@ public class MainActivity extends AppCompatActivity {
 
                 // Store to memory cache
                 synchronized (lruCache) {
-                    if (lruCache.get(username) == null) {
+                    if (lruCache.get(username) == null && !buffer.toString().isEmpty() && isTotalNotZero(buffer.toString())) {
                         lruCache.put(username, buffer.toString());
                     }
                 }
 
                 // Store to temp file
-                storeFile(username, buffer.toString());
+                if (!buffer.toString().isEmpty() && isTotalNotZero(buffer.toString())) {
+                    Log.d(MAINACTIVITYTAG, buffer.toString());
+                    storeFile(username, buffer.toString());
+                }
 
                 while (i <= 50) {
                     try {
@@ -182,9 +192,23 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
+            } catch (UnknownHostException e) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                network = false;
+                if (running) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Please check your network setting.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
+            } finally{
                 if (connection != null) {
                     connection.disconnect();
                 }
@@ -213,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
             username = editText.getText().toString();
             intent.putExtra(USERNAMEKEY, username);
 
-            if (running) {
+            if (running && network) {
                 startActivity(intent);
             }
         }
@@ -254,6 +278,22 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        private boolean isTotalNotZero(String json) {
+            if (json != null && !json.isEmpty()) {
+                try {
+                    JSONObject jsonObject = new JSONObject(json);
+                    int total = jsonObject.getInt("total");
+                    if (total > 0) {
+                        return true;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return false;
         }
     }
 }
