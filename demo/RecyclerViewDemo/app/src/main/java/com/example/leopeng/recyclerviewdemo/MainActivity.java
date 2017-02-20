@@ -1,6 +1,7 @@
 package com.example.leopeng.recyclerviewdemo;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -12,6 +13,9 @@ import android.view.View;
 import android.widget.EditText;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,18 +54,48 @@ public class MainActivity extends AppCompatActivity {
         Log.d(MAINACTIVITYTAG, "Username: " + username);
 
         synchronized (lruCache) {
+            // Hit memory cache
             if (lruCache.get(username) != null) {
                 Intent intent = new Intent(this, RecyclerViewActivity.class);
                 intent.putExtra(BOOKJSONKEY, lruCache.get(username));
                 intent.putExtra(USERNAMEKEY, username);
-
+                Log.d(MAINACTIVITYTAG, "Hit memory cache!");
                 startActivity(intent);
             } else {
-                String url = "https://api.douban.com/v2/book/user/" + username + "/collections?count=100";
-                Log.d(MAINACTIVITYTAG, url);
-                new JsonTask().execute(url);
+                String jsonString = getUserCacheJSONString();
+                // Hit disk cache
+                if (jsonString != null) {
+                    Intent intent = new Intent(this, RecyclerViewActivity.class);
+                    intent.putExtra(BOOKJSONKEY, jsonString);
+                    intent.putExtra(USERNAMEKEY, username);
+                    Log.d(MAINACTIVITYTAG, "Hit disk cache!");
+                    startActivity(intent);
+                } else {
+                    String url = "https://api.douban.com/v2/book/user/" + username + "/collections?count=100";
+                    Log.d(MAINACTIVITYTAG, url);
+                    new JsonTask().execute(url);
+                }
             }
         }
+    }
+
+    private String getUserCacheJSONString() {
+        File file = null;
+        BufferedReader reader = null;
+        try {
+            file = new File(getCacheDir(), username + "_cache");
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            String line;
+            StringBuffer buffer = new StringBuffer();
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+            }
+            return buffer.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     private class JsonTask extends AsyncTask<String, Integer, String> {
@@ -123,11 +157,15 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("Response: ", "> " + line);
                 }
 
+                // Store to memory cache
                 synchronized (lruCache) {
                     if (lruCache.get(username) == null) {
                         lruCache.put(username, buffer.toString());
                     }
                 }
+
+                // Store to temp file
+                storeFile(username, buffer.toString());
 
                 while (i <= 50) {
                     try {
@@ -192,6 +230,30 @@ public class MainActivity extends AppCompatActivity {
         protected void onCancelled(String s) {
             super.onCancelled(s);
             running = false;
+        }
+
+        private File getTempFile(String name) {
+            File file = null;
+            try {
+                file = new File(getCacheDir(), name);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return file;
+        }
+
+        private void storeFile(String filename, String value) {
+            File tempFile = getTempFile(filename + "_cache");
+            FileOutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(tempFile);
+                outputStream.write(value.getBytes());
+                Log.d(MAINACTIVITYTAG, "Store cache to disk: " + filename);
+                Log.d(MAINACTIVITYTAG, "Cache File: " + tempFile.getName());
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

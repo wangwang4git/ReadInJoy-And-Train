@@ -8,6 +8,9 @@ import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
@@ -54,18 +57,24 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
     }
 
     private Bitmap downloadBitmap(String url) {
+        if (url == null || url.isEmpty()) {return null;}
         HttpURLConnection urlConnection = null;
         try {
-
             if (bitmapLruCache != null) {
                 synchronized (bitmapLruCache) {
-                    if (url != null && bitmapLruCache.get(url) != null) {
-                        Log.d("Cache Size: ", Integer.toString(bitmapLruCache.size()));
+                    // Hit memory cache
+                    if (bitmapLruCache.get(url) != null) {
+                        Log.d(ImageDownloaderTask.class.getName(), "Image hit memory cache.");
                         return bitmapLruCache.get(url);
+                    } else {
+                        Bitmap bitmap = getImageFromDisk(url);
+                        // Hit disk cache
+                        if (bitmap != null) {
+                            return bitmap;
+                        }
                     }
                 }
             }
-
 
             URL uri = new URL(url);
             urlConnection = (HttpURLConnection) uri.openConnection();
@@ -78,6 +87,7 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
             if (inputStream != null) {
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                 if (bitmapLruCache != null) {
+                    // Store bitmap to memory cache
                     synchronized (bitmapLruCache) {
                         if (bitmapLruCache.get(url) == null) {
                             bitmapLruCache.put(url, bitmap);
@@ -85,6 +95,8 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
                         }
                     }
                 }
+                // Store bitmap to disk
+                storeBitmap(bitmap, url);
                 return bitmap;
             }
         } catch (Exception e) {
@@ -98,5 +110,30 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
             }
         }
         return null;
+    }
+
+    private Bitmap getImageFromDisk(String url) {
+        Bitmap bitmap = null;
+        try {
+            File file = new File(imageViewWeakReference.get().getContext().getCacheDir(), url.substring(url.lastIndexOf('/') + 1));
+            String filePath = file.getPath();
+            bitmap = BitmapFactory.decodeFile(filePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.d(ImageDownloaderTask.class.getName(), "Get image from disk: " + url);
+        return bitmap;
+    }
+
+    private void storeBitmap(Bitmap bitmap, String url) {
+        try {
+            File file = new File(imageViewWeakReference.get().getContext().getCacheDir(), url.substring(url.lastIndexOf('/') + 1));
+            FileOutputStream outputStream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            Log.d(ImageDownloaderTask.class.getName(), "Store image to disk: " + url);
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

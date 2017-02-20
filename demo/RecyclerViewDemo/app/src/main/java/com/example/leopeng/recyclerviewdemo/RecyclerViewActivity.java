@@ -35,7 +35,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
 
     private ArrayList<Book> bookList;
-    private static int cacheSize = 40 * 1024 * 1024;
+    private static int cacheSize = 8 * 1024 * 1024;
     LruCache<String, Bitmap> bitmapLruCache;
 
     public final static String RECYCLERVIEWACTIVITYTAG = "RecyclerViewActivity";
