@@ -1,7 +1,6 @@
 package com.example.leopeng.recyclerviewdemo;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -32,6 +31,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private String username;
+    private String lowercaseUsername;
     private ProgressDialog progressDialog;
     private EditText editText;
     public static String BOOKJSONKEY = "BOOKJSON";
@@ -55,15 +55,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void jsonTask(View view) {
         username = editText.getText().toString();
+        lowercaseUsername = username.toLowerCase();
 
         Log.d(MAINACTIVITYTAG, "Username: " + username);
+        Log.d(MAINACTIVITYTAG, "LowerCaseUsername: " + lowercaseUsername);
 
         synchronized (lruCache) {
             // Hit memory cache
-            String jsonString = lruCache.get(username);
+            String jsonString = lruCache.get(lowercaseUsername);
             if (jsonString != null && !jsonString.isEmpty()) {
                 Intent intent = new Intent(this, RecyclerViewActivity.class);
-                intent.putExtra(BOOKJSONKEY, lruCache.get(username));
+                intent.putExtra(BOOKJSONKEY, lruCache.get(lowercaseUsername));
                 intent.putExtra(USERNAMEKEY, username);
                 Log.d(MAINACTIVITYTAG, "Hit memory cache!");
                 startActivity(intent);
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         File file = null;
         BufferedReader reader = null;
         try {
-            file = new File(getCacheDir(), username + "_cache");
+            file = new File(getCacheDir(), lowercaseUsername + "_cache");
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             String line;
             StringBuffer buffer = new StringBuffer();
@@ -166,15 +168,15 @@ public class MainActivity extends AppCompatActivity {
 
                 // Store to memory cache
                 synchronized (lruCache) {
-                    if (lruCache.get(username) == null && !buffer.toString().isEmpty() && isTotalNotZero(buffer.toString())) {
-                        lruCache.put(username, buffer.toString());
+                    if (lruCache.get(lowercaseUsername) == null && !buffer.toString().isEmpty() && isTotalNotZero(buffer.toString())) {
+                        lruCache.put(lowercaseUsername, buffer.toString());
                     }
                 }
 
                 // Store to temp file
                 if (!buffer.toString().isEmpty() && isTotalNotZero(buffer.toString())) {
                     Log.d(MAINACTIVITYTAG, buffer.toString());
-                    storeFile(username, buffer.toString());
+                    storeFile(lowercaseUsername, buffer.toString());
                 }
 
                 while (i <= 50) {
