@@ -1,10 +1,15 @@
 package com.example.leopeng.recyclerviewdemo;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,16 +22,23 @@ import java.util.ArrayList;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     private ArrayList<Book> books;
-    LruCache<String, Bitmap> cache;
+    private LruCache<String, Bitmap> cache;
+
+    public final static String bookAdapterKey = "bookAdapter";
+    public final static String bookNameKey = "bookName";
+    public final static String authorNameKey = "authorName";
+    public final static String summaryKey = "summary";
+    public final static String imageURLKey = "imageURL";
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public CardView cardView;
-        TextView bookName;
-        TextView authorName;
-        TextView status;
-        TextView summary;
-        ImageView imageView;
+        CardView cardView;
+        private TextView bookName;
+        private TextView authorName;
+        private TextView status;
+        private TextView summary;
+        private ImageView imageView;
 
         public ViewHolder(CardView view) {
             super(view);
@@ -52,16 +64,34 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.bookName.setText(books.get(position).getBookName());
         holder.authorName.setText(books.get(position).getAuthor());
         holder.status.setText(books.get(position).getStatus());
         holder.status.setTextColor(books.get(position).getStatusColor());
-        holder.summary.setText(books.get(position).getBookDescription());
+        holder.summary.setText(books.get(position).getShortBookDescription());
         if (holder.imageView != null) {
-            new ImageDownloaderTask(holder.imageView, cache).execute(books.get(position).getImageURL());
+            new ImageDownloaderTask(holder.imageView).setBitmapLruCache(cache).execute(books.get(position).getImageURL());
         }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(RecyclerViewActivity.RECYCLERVIEWACTIVITYTAG, "Click");
+                Bundle args = new Bundle();
+                args.putString(bookNameKey, books.get(position).getBookName());
+                args.putString(authorNameKey, books.get(position).getAuthor());
+                args.putString(summaryKey, books.get(position).getBookDescription());
+                args.putString(imageURLKey, books.get(position).getImageURL());
+
+                Intent intent = new Intent(v.getContext(), DetailViewActivity.class);
+                intent.putExtra(bookAdapterKey, args);
+                v.getContext().startActivity(intent);
+            }
+        });
     }
+
+
 
     @Override
     public int getItemCount() {
@@ -72,4 +102,6 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
     }
+
+
 }

@@ -1,5 +1,11 @@
 package com.example.leopeng.recyclerviewdemo;
 
+import android.app.ListActivity;
+
+import java.util.List;
+
+import static java.lang.Math.min;
+
 /**
  * Created by leopeng on 10/02/2017.
  */
@@ -11,6 +17,20 @@ public class Book {
     private String status;
     private String imageURL;
     private int statusColor;
+    private Rating rating;
+    private List<Tag> tags;
+
+    public static class Rating {
+        public double max;
+        public int numRaters;
+        public double average;
+        public double min;
+    }
+
+    public static class Tag {
+        public int count;
+        public String tagName;
+    }
 
     public Book(String bookName, String author, String bookDescription, String status, String imageURL) {
         this.bookName = bookName;
@@ -30,6 +50,12 @@ public class Book {
 
     public  String getBookDescription() {
         return this.bookDescription;
+    }
+
+    public String getShortBookDescription() {
+        return (this.bookDescription.length() > 0)  ?
+                this.bookDescription.substring(0, min(this.bookDescription.length() - 1, 70)) + "..." :
+                this.bookDescription;
     }
 
     public String getStatus() {
@@ -61,5 +87,25 @@ public class Book {
 
     public int getStatusColor() {
         return this.statusColor;
+    }
+
+    public Rating getRating() {
+        return this.rating;
+    }
+
+    public void setRating(double max, double min, int numRaters, double average) {
+        this.rating = new Rating();
+        this.rating.max = max;
+        this.rating.min = min;
+        this.rating.average = average;
+        this.rating.numRaters = numRaters;
+    }
+
+    public List<Tag> getTags() {
+        return this.tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 }

@@ -76,7 +76,8 @@
                 android:paddingLeft="10dp"
                 android:paddingBottom="15dp"
                 android:paddingRight="30dp"
-                android:layout_alignParentRight="true">
+                android:layout_alignParentRight="true"
+                android:lineSpacingExtra="2dp">
 
             </TextView>
 

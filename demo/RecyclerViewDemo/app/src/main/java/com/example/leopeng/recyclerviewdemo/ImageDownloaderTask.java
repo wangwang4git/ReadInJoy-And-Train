@@ -19,11 +19,15 @@ import java.net.URL;
 
 public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
     private final WeakReference<ImageView> imageViewWeakReference;
-    private final LruCache<String, Bitmap> bitmapLruCache;
+    private LruCache<String, Bitmap> bitmapLruCache;
 
-    public ImageDownloaderTask(ImageView imageView, LruCache cache) {
+    public ImageDownloaderTask(ImageView imageView) {
         imageViewWeakReference = new WeakReference<>(imageView);
+    }
+
+    public ImageDownloaderTask setBitmapLruCache(LruCache cache) {
         bitmapLruCache = (LruCache<String, Bitmap>) cache;
+        return this;
     }
 
     @Override

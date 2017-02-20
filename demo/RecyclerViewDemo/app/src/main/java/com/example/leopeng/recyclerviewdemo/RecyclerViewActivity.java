@@ -39,6 +39,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     LruCache<String, Bitmap> bitmapLruCache;
 
     public final static String RECYCLERVIEWACTIVITYTAG = "RecyclerViewActivity";
+    public final static String DETAILKEY = "DETAILKEY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +63,10 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
         adapter = new BookAdapter(bookList, bitmapLruCache);
         recyclerView.setAdapter(adapter);
-
     }
 
     private void handleIntent(Intent intent) {
+        setTitle(intent.getStringExtra(MainActivity.USERNAMEKEY) + " 收藏的图书");
         JSONParse(intent);
         Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
 
@@ -118,10 +119,6 @@ public class RecyclerViewActivity extends AppCompatActivity {
                             }
                         }
 
-                        // substr summary
-                        if (summary.length() > 0) {
-                            summary = summary.substring(0, min(summary.length() - 1, 70)) + "...";
-                        }
 
                         Book oneBookModel = new Book(bookTitle, authorName, summary, status, imageURL);
                         bookList.add(oneBookModel);
