@@ -3,6 +3,7 @@ package com.example.leopeng.recyclerviewdemo;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -22,6 +23,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static java.lang.Math.min;
 
@@ -33,6 +36,8 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private String username;
+    private String updateURL;
 
     private ArrayList<Book> bookList;
     private static int cacheSize = 8 * 1024 * 1024;
@@ -46,10 +51,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycler_view);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-
-        if (getIntent() != null) {
-            handleIntent(getIntent());
-        }
+        bookList = new ArrayList<Book>();
 
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -63,27 +65,36 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
         adapter = new BookAdapter(bookList, bitmapLruCache);
         recyclerView.setAdapter(adapter);
+
+        if (getIntent() != null) {
+            handleIntent(getIntent());
+        }
+
+        if (updateURL != null) {
+            CommonJsonTask commonJsonTask = new CommonJsonTask(RecyclerViewActivity.this);
+            commonJsonTask.cacheKey = username;
+            commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,updateURL);
+        }
     }
 
     private void handleIntent(Intent intent) {
         setTitle(intent.getStringExtra(MainActivity.USERNAMEKEY) + " 收藏的图书");
-        JSONParse(intent);
+        username = intent.getStringExtra(MainActivity.USERNAMEKEY);
+        updateURL = "https://api.douban.com/v2/book/user/" + username + "/collections?count=100";
+        String jsonString = intent.getStringExtra(MainActivity.BOOKJSONKEY);
+        JSONParse(jsonString);
         Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
-
         if (bookList.size() == 0) {
             Book noBooksInfo = new Book("该用户没有收藏任何书本。", "", "", "", "");
             bookList.add(noBooksInfo);
         }
     }
 
-    private void JSONParse(Intent intent) {
-        bookList = new ArrayList<Book>();
-        String books= intent.getStringExtra(MainActivity.BOOKJSONKEY);
-        String username = intent.getStringExtra(MainActivity.USERNAMEKEY);
-
-        if (books != null && !books.isEmpty() ) {
+    public void JSONParse(String jsonString) {
+        if (jsonString != null && !jsonString.isEmpty() ) {
+            bookList.clear();
             try {
-                JSONObject json = new JSONObject(books);
+                JSONObject json = new JSONObject(jsonString);
                 String count = json.getString("count");
                 String start = json.getString("start");
                 String total = json.getString("total");
@@ -92,10 +103,10 @@ public class RecyclerViewActivity extends AppCompatActivity {
                 Log.d(RECYCLERVIEWACTIVITYTAG, "start: " + start);
                 Log.d(RECYCLERVIEWACTIVITYTAG, "total: " + total);
 
-                if (Integer.parseInt(total) > 0) {
+//                if (Integer.parseInt(total) > 0) {
 //                  Book bookNumber = new Book(username + " 一共收藏了 " + total + " 本图书", "", "一次最多显示 100 本图书信息", "", "");
 //                   bookList.add(bookNumber);
-                }
+//                }
 
                 JSONArray jsonArray = json.getJSONArray("collections");
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -119,7 +130,6 @@ public class RecyclerViewActivity extends AppCompatActivity {
                             }
                         }
 
-
                         Book oneBookModel = new Book(bookTitle, authorName, summary, status, imageURL);
                         bookList.add(oneBookModel);
 
@@ -128,11 +138,12 @@ public class RecyclerViewActivity extends AppCompatActivity {
                     }
                 }
 
+                adapter.notifyDataSetChanged();
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-
     }
 
     @Override

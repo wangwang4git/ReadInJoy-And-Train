@@ -3,7 +3,9 @@ package com.example.leopeng.recyclerviewdemo;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,10 +38,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText editText;
     public static String BOOKJSONKEY = "BOOKJSON";
     public static String USERNAMEKEY = "USERNAMEKEY";
+    public static String CACHEKEY = "CACHEKEY";
     public final static String MAINACTIVITYTAG = "MainActivity";
 
     private final LruCache<String, String> lruCache;
     private final static int cacheSize = 4 * 1024 * 1024;
+    private Intent intent;
 
     public MainActivity() {
         lruCache = new LruCache<>(cacheSize);
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         editText = (EditText) findViewById(R.id.username);
+        intent = new Intent(this, RecyclerViewActivity.class);
     }
 
     public void jsonTask(View view) {
@@ -64,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
             // Hit memory cache
             String jsonString = lruCache.get(lowercaseUsername);
             if (jsonString != null && !jsonString.isEmpty()) {
-                Intent intent = new Intent(this, RecyclerViewActivity.class);
                 intent.putExtra(BOOKJSONKEY, lruCache.get(lowercaseUsername));
                 intent.putExtra(USERNAMEKEY, username);
                 Log.d(MAINACTIVITYTAG, "Hit memory cache!");
@@ -73,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
                 // Hit disk cache
                 jsonString = getUserCacheJSONString();
                 if (jsonString != null && !jsonString.isEmpty()) {
-                    Intent intent = new Intent(this, RecyclerViewActivity.class);
                     intent.putExtra(BOOKJSONKEY, jsonString);
                     intent.putExtra(USERNAMEKEY, username);
                     Log.d(MAINACTIVITYTAG, "Hit disk cache!");
@@ -85,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    public LruCache<String, String> getLruCache() {
+        return this.lruCache;
     }
 
     private String getUserCacheJSONString() {
@@ -233,11 +240,11 @@ public class MainActivity extends AppCompatActivity {
                 progressDialog.dismiss();
             }
 
-            Intent intent = new Intent(MainActivity.this, RecyclerViewActivity.class);
             intent.putExtra(BOOKJSONKEY, s);
 
             username = editText.getText().toString();
             intent.putExtra(USERNAMEKEY, username);
+//            intent.putExtra(CACHEKEY, (Parcelable) lruCache);
 
             if (running && network) {
                 startActivity(intent);

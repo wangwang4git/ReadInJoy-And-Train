@@ -64,7 +64,7 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
                 synchronized (bitmapLruCache) {
                     // Hit memory cache
                     if (bitmapLruCache.get(url) != null) {
-                        Log.d(ImageDownloaderTask.class.getName(), "Image hit memory cache.");
+                        Log.d(ImageDownloaderTask.class.getName(), "Image hit memory cache. " + url);
                         return bitmapLruCache.get(url);
                     }
                 }
@@ -73,6 +73,7 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
             // Hit disk cache
             Bitmap bitmap = getImageFromDisk(url);
             if (bitmap != null) {
+                storeBitmapToMemoryCache(bitmap, url);
                 return bitmap;
             }
 
@@ -86,19 +87,14 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
             InputStream inputStream = urlConnection.getInputStream();
             if (inputStream != null) {
                 bitmap = BitmapFactory.decodeStream(inputStream);
-                if (bitmapLruCache != null) {
-                    // Store bitmap to memory cache
-                    synchronized (bitmapLruCache) {
-                        if (bitmapLruCache.get(url) == null) {
-                            bitmapLruCache.put(url, bitmap);
-                            Log.d("Cache image: ", url);
-                        }
-                    }
-                }
-                // Store bitmap to disk
-                storeBitmap(bitmap, url);
-                return bitmap;
             }
+
+            // Store bitmap to memory
+            storeBitmapToMemoryCache(bitmap, url);
+
+            // Store bitmap to disk
+            storeBitmap(bitmap, url);
+            return bitmap;
         } catch (Exception e) {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -134,6 +130,18 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
             outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void storeBitmapToMemoryCache(Bitmap bitmap, String url) {
+        if (bitmapLruCache != null) {
+            // Store bitmap to memory cache
+            synchronized (bitmapLruCache) {
+                if (bitmapLruCache.get(url) == null) {
+                    bitmapLruCache.put(url, bitmap);
+                    Log.d("Cache image to memory: ", url);
+                }
+            }
         }
     }
 }
