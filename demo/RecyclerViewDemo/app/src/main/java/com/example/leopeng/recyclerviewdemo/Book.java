@@ -1,6 +1,5 @@
 package com.example.leopeng.recyclerviewdemo;
 
-import android.app.ListActivity;
 
 import java.util.List;
 

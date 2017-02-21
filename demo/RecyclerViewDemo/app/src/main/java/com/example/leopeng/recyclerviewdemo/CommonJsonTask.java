@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by leopeng on 21/02/2017.
