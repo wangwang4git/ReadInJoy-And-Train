@@ -20,10 +20,10 @@ public class Book {
     private List<Tag> tags;
 
     public static class Rating {
-        public double max;
-        public int numRaters;
-        public double average;
-        public double min;
+        public String max;
+        public String numRaters;
+        public String average;
+        public String min;
     }
 
     public static class Tag {
@@ -92,7 +92,7 @@ public class Book {
         return this.rating;
     }
 
-    public void setRating(double max, double min, int numRaters, double average) {
+    public void setRating(String max, String min, String numRaters, String average) {
         this.rating = new Rating();
         this.rating.max = max;
         this.rating.min = min;

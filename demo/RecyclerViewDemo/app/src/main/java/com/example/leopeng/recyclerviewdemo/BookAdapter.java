@@ -126,6 +126,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     args.putString(authorNameKey, book.getAuthor());
                     args.putString(summaryKey, book.getBookDescription());
                     args.putString(imageURLKey, book.getImageURL());
+                    args.putString("average", book.getRating().average);
 
                     Intent intent = new Intent(v.getContext(), DetailViewActivity.class);
                     intent.putExtra(bookAdapterKey, args);

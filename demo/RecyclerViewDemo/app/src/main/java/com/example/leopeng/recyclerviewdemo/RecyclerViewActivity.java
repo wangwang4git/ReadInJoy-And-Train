@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by leopeng on 13/02/2017.
@@ -113,8 +114,8 @@ public class RecyclerViewActivity extends AppCompatActivity {
                         String summary = bookInfo.getString("summary");
                         String imageURL = bookInfo.getString("image");
                         JSONArray author = bookInfo.getJSONArray("author");
-                        String authorName = "";
 
+                        String authorName = "";
                         int maxAuthorNumber = Math.min(5, author.length());
                         for (int j = 0; j < maxAuthorNumber; j++) {
                             authorName += author.getString(j);
@@ -124,6 +125,25 @@ public class RecyclerViewActivity extends AppCompatActivity {
                         }
 
                         Book oneBookModel = new Book(bookTitle, authorName, summary, status, imageURL);
+
+                        // Set rating info
+                        JSONObject rating = bookInfo.getJSONObject("rating");
+                        oneBookModel.setRating(rating.getString("max"), rating.getString("min"), rating.getString("numRaters"), rating.getString("average"));
+
+                        // Set tags info
+                        JSONArray tags = bookInfo.getJSONArray("tags");
+                        int maxTagNumber = Math.min(10, tags.length());
+                        List<Book.Tag> tagsList = new ArrayList<Book.Tag>();
+                        for (int j = 0; j < maxTagNumber; j++) {
+                            JSONObject oneTag = tags.getJSONObject(j);
+                            Book.Tag tag = new Book.Tag();
+                            tag.count = oneTag.getInt("count");
+                            tag.tagName = oneTag.getString("name");
+
+                            tagsList.add(tag);
+                        }
+                        oneBookModel.setTags(tagsList);
+
                         bookList.add(oneBookModel);
 
                     } catch (JSONException e) {
