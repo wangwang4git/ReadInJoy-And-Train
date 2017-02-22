@@ -114,6 +114,8 @@ public class Book {
             stringTagsList = new ArrayList<>(this.tags.size());
         }
 
+        stringTagsList.clear();
+
         int maxNum = Math.min(this.tags.size(), 10);
         for (int i = 0; i < maxNum; i++) {
             stringTagsList.add(tags.get(i).tagName + " " + this.tags.get(i).count);
