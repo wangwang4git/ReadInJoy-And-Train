@@ -1,8 +1,12 @@
 package com.example.leopeng.recyclerviewdemo;
 
 
+import android.os.Parcelable;
+
+import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 /**
@@ -18,6 +22,7 @@ public class Book {
     private int statusColor;
     private Rating rating;
     private List<Tag> tags;
+    private List<String> stringTagsList;
 
     public static class Rating {
         public String max;
@@ -102,6 +107,19 @@ public class Book {
 
     public List<Tag> getTags() {
         return this.tags;
+    }
+
+    public List<String> getStringTags() {
+        if (stringTagsList == null) {
+            stringTagsList = new ArrayList<>(this.tags.size());
+        }
+
+        int maxNum = Math.min(this.tags.size(), 10);
+        for (int i = 0; i < maxNum; i++) {
+            stringTagsList.add(tags.get(i).tagName + " " + this.tags.get(i).count);
+        }
+
+        return this.stringTagsList;
     }
 
     public void setTags(List<Tag> tags) {

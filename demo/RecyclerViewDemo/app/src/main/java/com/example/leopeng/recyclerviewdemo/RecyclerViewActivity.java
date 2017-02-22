@@ -64,7 +64,8 @@ public class RecyclerViewActivity extends AppCompatActivity {
             handleIntent(getIntent());
         }
 
-        if (updateURL != null) {
+        boolean firstLoad = getIntent().getBooleanExtra(MainActivity.FIRSTLOADKEY, false);
+        if (updateURL != null && !updateURL.isEmpty() && !firstLoad) {
             CommonJsonTask commonJsonTask = new CommonJsonTask(RecyclerViewActivity.this);
             commonJsonTask.cacheKey = username;
             commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,updateURL);
@@ -132,9 +133,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
                         // Set tags info
                         JSONArray tags = bookInfo.getJSONArray("tags");
-                        int maxTagNumber = Math.min(10, tags.length());
+//                        int maxTagNumber = Math.min(10, tags.length());
                         List<Book.Tag> tagsList = new ArrayList<Book.Tag>();
-                        for (int j = 0; j < maxTagNumber; j++) {
+                        for (int j = 0; j < tags.length(); j++) {
                             JSONObject oneTag = tags.getJSONObject(j);
                             Book.Tag tag = new Book.Tag();
                             tag.count = oneTag.getInt("count");

@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editText;
     public static String BOOKJSONKEY = "BOOKJSON";
     public static String USERNAMEKEY = "USERNAMEKEY";
-    public static String CACHEKEY = "CACHEKEY";
+    public static String FIRSTLOADKEY = "FIRSTLOAD";
     public final static String MAINACTIVITYTAG = "MainActivity";
 
     private final LruCache<String, String> lruCache;
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             if (jsonString != null && !jsonString.isEmpty()) {
                 intent.putExtra(BOOKJSONKEY, lruCache.get(lowercaseUsername));
                 intent.putExtra(USERNAMEKEY, username);
+                intent.putExtra(FIRSTLOADKEY, false);
                 Log.d(MAINACTIVITYTAG, "Hit memory cache!");
                 startActivity(intent);
             } else {
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 if (jsonString != null && !jsonString.isEmpty()) {
                     intent.putExtra(BOOKJSONKEY, jsonString);
                     intent.putExtra(USERNAMEKEY, username);
+                    intent.putExtra(FIRSTLOADKEY, false);
                     Log.d(MAINACTIVITYTAG, "Hit disk cache!");
                     startActivity(intent);
                 } else {
@@ -243,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
             username = editText.getText().toString();
             intent.putExtra(USERNAMEKEY, username);
-//            intent.putExtra(CACHEKEY, (Parcelable) lruCache);
+            intent.putExtra(FIRSTLOADKEY, true);
 
             if (running && network) {
                 startActivity(intent);

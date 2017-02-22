@@ -32,6 +32,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public final static String statusKey = "status";
     public final static String statusColorKey = "statusColor";
     public final static String averageKey = "average";
+    public final static String tagKey = "tag";
 
     public static final int TYPE_HEADER = 0;
     public static final int TYPE_ITEM = 1;
@@ -133,6 +134,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     args.putString(averageKey, book.getRating().average);
                     args.putString(statusKey, book.getStatus());
                     args.putInt(statusColorKey, book.getStatusColor());
+                    args.putStringArrayList(tagKey, (ArrayList<String>)book.getStringTags());
 
                     Intent intent = new Intent(v.getContext(), DetailViewActivity.class);
                     intent.putExtra(bookAdapterKey, args);

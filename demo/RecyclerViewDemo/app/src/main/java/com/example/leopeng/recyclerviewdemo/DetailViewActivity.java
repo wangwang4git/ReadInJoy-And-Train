@@ -13,7 +13,10 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import java.util.List;
 import java.util.Map;
+
+import me.gujun.android.taggroup.TagGroup;
 
 /**
  * Created by leopeng on 20/02/2017.
@@ -28,6 +31,7 @@ public class DetailViewActivity extends AppCompatActivity {
     private RatingBar ratingBar;
     private TextView ratingValue;
     private TextView status;
+    private TagGroup tagGroup;
     private Bundle args;
 
     @Override
@@ -42,6 +46,7 @@ public class DetailViewActivity extends AppCompatActivity {
         ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         ratingValue = (TextView) findViewById(R.id.ratingValue);
         status = (TextView) findViewById(R.id.status);
+        tagGroup = (TagGroup) findViewById(R.id.tags);
 
         LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
         stars.getDrawable(2).setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_ATOP);
@@ -73,6 +78,12 @@ public class DetailViewActivity extends AppCompatActivity {
 
         if (bookCover != null) {
             new ImageDownloaderTask(bookCover).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, args.getString(BookAdapter.imageURLKey));
+        }
+
+        // tags
+        List<String> list = args.getStringArrayList(BookAdapter.tagKey);
+        if (list != null && !list.isEmpty()) {
+            tagGroup.setTags(list);
         }
     }
 }
