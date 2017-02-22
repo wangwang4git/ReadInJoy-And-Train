@@ -1,8 +1,11 @@
 package com.example.leopeng.recyclerviewdemo;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +30,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private final LruCache<String, String> lruCache;
     private final static int cacheSize = 4 * 1024 * 1024;
     private Intent intent;
+    private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
 
     public MainActivity() {
         lruCache = new LruCache<>(cacheSize);
@@ -55,6 +61,49 @@ public class MainActivity extends AppCompatActivity {
 
         editText = (EditText) findViewById(R.id.username);
         intent = new Intent(this, RecyclerViewActivity.class);
+        searchHistoryDBHelper = new SearchHistory.SearchHistoryDBHelper(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        searchHistoryDBHelper.close();
+        super.onDestroy();
+    }
+
+    private long putInfoIntoDB() {
+        SQLiteDatabase db = searchHistoryDBHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD, lowercaseUsername);
+
+        Date now = new Date();
+        values.put(SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT, now.getTime());
+
+        return db.insert(SearchHistory.SearchHistoryTable.TABLE_NAME, null, values);
+    }
+
+    private boolean isExistInfo() {
+        SQLiteDatabase db = searchHistoryDBHelper.getReadableDatabase();
+        String[] projections = {SearchHistory.SearchHistoryTable._ID};
+
+        String selection = SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD + " = ?";
+        String[] selectionArgs = {lowercaseUsername};
+
+        Cursor cursor = db.query(
+                SearchHistory.SearchHistoryTable.TABLE_NAME,
+                projections,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                ""
+        );
+
+        return cursor.getCount() > 0 ;
+    }
+
+    private void getInfoFromDB() {
+
     }
 
     public void jsonTask(View view) {
@@ -63,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(MAINACTIVITYTAG, "Username: " + username);
         Log.d(MAINACTIVITYTAG, "LowerCaseUsername: " + lowercaseUsername);
+
+        if (!isExistInfo())
+            putInfoIntoDB();
 
         synchronized (lruCache) {
             // Hit memory cache
