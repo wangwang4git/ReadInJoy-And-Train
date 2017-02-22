@@ -46,7 +46,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        Toast.makeText(mContext, "Loading ...", Toast.LENGTH_LONG);
+        Toast.makeText(mContext, "Loading ...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -143,6 +143,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
         super.onPostExecute(s);
         if (mContext instanceof RecyclerViewActivity) {
             ((RecyclerViewActivity) mContext).JSONParse(s);
+            Toast.makeText(mContext, "Refresh Succeed", Toast.LENGTH_SHORT).show();
         }
     }
 

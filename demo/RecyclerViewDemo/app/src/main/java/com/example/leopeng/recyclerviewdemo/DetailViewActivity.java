@@ -26,6 +26,8 @@ public class DetailViewActivity extends AppCompatActivity {
     private TextView summary;
     private TextView updatedAt;
     private RatingBar ratingBar;
+    private TextView ratingValue;
+    private TextView status;
     private Bundle args;
 
     @Override
@@ -38,6 +40,8 @@ public class DetailViewActivity extends AppCompatActivity {
         authorName = (TextView) findViewById(R.id.authorName);
         summary = (TextView) findViewById(R.id.summary);
         ratingBar = (RatingBar) findViewById(R.id.ratingBar);
+        ratingValue = (TextView) findViewById(R.id.ratingValue);
+        status = (TextView) findViewById(R.id.status);
 
         LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
         stars.getDrawable(2).setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_ATOP);
@@ -55,10 +59,14 @@ public class DetailViewActivity extends AppCompatActivity {
         authorName.setText(args.getString(BookAdapter.authorNameKey));
         summary.setText(args.getString(BookAdapter.summaryKey));
 
-        String average = args.getString("average");
+        status.setText(args.getString(BookAdapter.statusKey));
+        status.setTextColor(args.getInt(BookAdapter.statusColorKey));
+
+        String average = args.getString(BookAdapter.averageKey);
         if (average != null) {
             Log.d(DetailViewActivity.class.getName(), "Rating: " + Float.parseFloat(average));
             ratingBar.setRating(Float.parseFloat(average) / 2);
+            ratingValue.setText(average);
         }
 
         setTitle(args.getString(BookAdapter.bookNameKey));
