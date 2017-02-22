@@ -7,7 +7,9 @@ import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -111,7 +113,9 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
         try {
             File file = new File(imageViewWeakReference.get().getContext().getCacheDir(), url.substring(url.lastIndexOf('/') + 1));
             String filePath = file.getPath();
-            bitmap = BitmapFactory.decodeFile(filePath);
+            InputStream inputStream = new FileInputStream(file);
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+            bitmap = BitmapFactory.decodeStream(bufferedInputStream);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -63,7 +64,7 @@ public class DetailViewActivity extends AppCompatActivity {
         setTitle(args.getString(BookAdapter.bookNameKey));
 
         if (bookCover != null) {
-            new ImageDownloaderTask(bookCover).execute(args.getString(BookAdapter.imageURLKey));
+            new ImageDownloaderTask(bookCover).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, args.getString(BookAdapter.imageURLKey));
         }
     }
 }

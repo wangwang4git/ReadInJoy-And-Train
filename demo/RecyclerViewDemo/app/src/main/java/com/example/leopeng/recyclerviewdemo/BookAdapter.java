@@ -2,6 +2,7 @@ package com.example.leopeng.recyclerviewdemo;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -114,7 +115,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.status.setTextColor(book.getStatusColor());
             itemViewHolder.summary.setText(book.getShortBookDescription());
             if (itemViewHolder.imageView != null) {
-                new ImageDownloaderTask(itemViewHolder.imageView).setBitmapLruCache(cache).execute(book.getImageURL());
+                new ImageDownloaderTask(itemViewHolder.imageView).setBitmapLruCache(cache).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, book.getImageURL());
             }
 
             itemViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
