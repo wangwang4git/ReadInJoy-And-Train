@@ -79,10 +79,10 @@ public class RecyclerViewActivity extends AppCompatActivity {
         String jsonString = intent.getStringExtra(MainActivity.BOOKJSONKEY);
         JSONParse(jsonString);
         Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
-        if (bookList.size() == 0) {
-            Book noBooksInfo = new Book("该用户没有收藏任何书本。", "", "", "", "");
-            bookList.add(noBooksInfo);
-        }
+//        if (bookList.size() == 0) {
+//            Book noBooksInfo = new Book("该用户没有收藏任何书本。", "", "", "", "");
+//            bookList.add(noBooksInfo);
+//        }
     }
 
     public void JSONParse(String jsonString) {

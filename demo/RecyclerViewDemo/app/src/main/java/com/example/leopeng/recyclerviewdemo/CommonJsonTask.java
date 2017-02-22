@@ -46,7 +46,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        Toast.makeText(mContext, "Loading ...", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mContext, "Loading ...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
