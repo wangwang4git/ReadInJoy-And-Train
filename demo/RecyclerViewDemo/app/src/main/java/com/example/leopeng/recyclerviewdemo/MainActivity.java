@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,8 +29,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int cacheSize = 4 * 1024 * 1024;
     private Intent intent;
     private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
+    private List<String> usernameList;
 
     public MainActivity() {
         lruCache = new LruCache<>(cacheSize);
@@ -82,6 +83,27 @@ public class MainActivity extends AppCompatActivity {
         return db.insert(SearchHistory.SearchHistoryTable.TABLE_NAME, null, values);
     }
 
+    private boolean updateInfoIntoDB(String username) {
+        SQLiteDatabase db = searchHistoryDBHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        Date now = new Date();
+        values.put(SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT, now.getTime());
+
+        String selection = SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD + " LIKE ?";
+        String[] selectionArgs = { username };
+
+        int count = db.update(
+                SearchHistory.SearchHistoryTable.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs
+        );
+
+        return count > 0 ;
+    }
+
     private boolean isExistInfo() {
         SQLiteDatabase db = searchHistoryDBHelper.getReadableDatabase();
         String[] projections = {SearchHistory.SearchHistoryTable._ID};
@@ -99,11 +121,55 @@ public class MainActivity extends AppCompatActivity {
                 ""
         );
 
-        return cursor.getCount() > 0 ;
+        boolean res = cursor.getCount() > 0;
+        cursor.close();
+        return res ;
     }
 
     private void getInfoFromDB() {
+        SQLiteDatabase db = searchHistoryDBHelper.getReadableDatabase();
+        String[] projections = {
+                SearchHistory.SearchHistoryTable._ID,
+                SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD,
+                SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT
+        };
 
+        String sortOrder = SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT + " DESC";
+
+        Cursor cursor = db.query(
+                SearchHistory.SearchHistoryTable.TABLE_NAME,
+                projections,
+                null,
+                null,
+                null,
+                null,
+                sortOrder
+        );
+
+        if (usernameList == null) {
+            usernameList = new ArrayList<>();
+        }
+
+        usernameList.clear();
+
+        while (cursor.moveToNext()) {
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD));
+            usernameList.add(name);
+        }
+
+        for (String username : usernameList) {
+            Log.d(MAINACTIVITYTAG, "username: " + username);
+        }
+
+        if (usernameList.isEmpty()) {
+            Log.d(MAINACTIVITYTAG, "No username stored.");
+        }
+
+        cursor.close();
+    }
+
+    public void onClickEditText(View view) {
+        getInfoFromDB();
     }
 
     public void jsonTask(View view) {
@@ -113,8 +179,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(MAINACTIVITYTAG, "Username: " + username);
         Log.d(MAINACTIVITYTAG, "LowerCaseUsername: " + lowercaseUsername);
 
-        if (!isExistInfo())
+        if (!isExistInfo()) {
             putInfoIntoDB();
+        } else {
+            updateInfoIntoDB(lowercaseUsername);
+        }
 
         synchronized (lruCache) {
             // Hit memory cache

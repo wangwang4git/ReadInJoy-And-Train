@@ -27,7 +27,8 @@
             android:paddingBottom="20dp"
             android:layout_weight="1"
             android:id="@+id/username"
-            ></EditText>
+            android:onClick="onClickEditText"
+            />
 
         <Button
             android:id="@+id/show_contact_button"
