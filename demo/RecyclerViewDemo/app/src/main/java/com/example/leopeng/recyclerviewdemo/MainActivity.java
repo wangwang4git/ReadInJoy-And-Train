@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 username = usernameList.get(position);
+                editText.setText(username);
                 jumpToBookList();
             }
         });
@@ -239,6 +240,11 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(MAINACTIVITYTAG, "Username: " + username);
         Log.d(MAINACTIVITYTAG, "LowerCaseUsername: " + lowercaseUsername);
+
+        if (lowercaseUsername.trim().isEmpty()) {
+            Toast.makeText(this, "Please enter username.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (!isExistInfo()) {
             putInfoIntoDB();
