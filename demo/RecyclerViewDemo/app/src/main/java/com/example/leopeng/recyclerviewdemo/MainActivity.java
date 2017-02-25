@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
     private List<String> usernameList;
     private ArrayAdapter adapter;
+    private boolean isOpened = false;
 
     public MainActivity() {
         lruCache = new LruCache<>(cacheSize);
@@ -190,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         String sortOrder = SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT + " DESC";
+        String limits = "5";
 
         Cursor cursor = db.query(
                 SearchHistory.SearchHistoryTable.TABLE_NAME,
@@ -198,7 +202,8 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 null,
                 null,
-                sortOrder
+                sortOrder,
+                limits
         );
 
         if (usernameList == null) {
