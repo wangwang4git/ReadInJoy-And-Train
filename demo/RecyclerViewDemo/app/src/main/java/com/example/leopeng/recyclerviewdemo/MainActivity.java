@@ -12,7 +12,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -40,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private String lowercaseUsername;
     private ProgressDialog progressDialog;
     private EditText editText;
+    private ViewGroup backgroudView;
+    private ListView searchHistoryListView;
     public static String BOOKJSONKEY = "BOOKJSON";
     public static String USERNAMEKEY = "USERNAMEKEY";
     public static String FIRSTLOADKEY = "FIRSTLOAD";
@@ -50,10 +57,12 @@ public class MainActivity extends AppCompatActivity {
     private Intent intent;
     private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
     private List<String> usernameList;
+    private ArrayAdapter adapter;
 
     public MainActivity() {
         lruCache = new LruCache<>(cacheSize);
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +70,54 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         editText = (EditText) findViewById(R.id.username);
+        backgroudView = (ViewGroup) findViewById(R.id.backgroundView);
+        searchHistoryListView = (ListView) findViewById(R.id.searchHistory);
         intent = new Intent(this, RecyclerViewActivity.class);
         searchHistoryDBHelper = new SearchHistory.SearchHistoryDBHelper(this);
+        final InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
+        backgroudView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                   imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        });
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    searchHistoryListView.setVisibility(View.VISIBLE);
+                } else {
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    getInfoFromDB();
+                    adapter.notifyDataSetChanged();
+                    searchHistoryListView.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        usernameList = new ArrayList<>();
+        adapter = new ArrayAdapter<String>(this, R.layout.username_item, usernameList);
+        searchHistoryListView.setAdapter(adapter);
+        searchHistoryListView.setDividerHeight(2);
+
+        searchHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                username = usernameList.get(position);
+                jumpToBookList();
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getInfoFromDB();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -168,12 +223,13 @@ public class MainActivity extends AppCompatActivity {
         cursor.close();
     }
 
-    public void onClickEditText(View view) {
-        getInfoFromDB();
-    }
 
     public void jsonTask(View view) {
         username = editText.getText().toString();
+        jumpToBookList();
+    }
+
+    private void jumpToBookList() {
         lowercaseUsername = username.toLowerCase();
 
         Log.d(MAINACTIVITYTAG, "Username: " + username);
