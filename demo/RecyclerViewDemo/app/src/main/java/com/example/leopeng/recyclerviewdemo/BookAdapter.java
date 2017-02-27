@@ -144,11 +144,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
             if (position == 0) {
-                if (books.size() == 0) {
-                    headerViewHolder.headerText.setText("该用户没有收藏任何图书");
-                } else {
-                    headerViewHolder.headerText.setText("用户" + "共收藏了 " + books.size() + " 本书");
-                }
+                headerViewHolder.headerText.setText("The number of book list: " + books.size());
             }
         }
 

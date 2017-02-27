@@ -9,6 +9,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.Menu;
@@ -30,6 +31,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private Toolbar myToolbar;
     private String username;
     private String updateURL;
     private String searchBookName;
@@ -46,6 +48,11 @@ public class RecyclerViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycler_view);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        myToolbar= (Toolbar) findViewById(R.id.myRecyclerViewToolbar);
+        myToolbar.setTitle("BookLists");
+        setSupportActionBar(myToolbar);
+
         bookList = new ArrayList<Book>();
 
         layoutManager = new LinearLayoutManager(this);
@@ -71,6 +78,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
             if (username != null && !username.isEmpty()) {
                 commonJsonTask.cacheKey = username;
             }
+            if (searchBookName != null && !searchBookName.isEmpty()) {
+                commonJsonTask.cacheKey = "searchBook_" + searchBookName;
+            }
             commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,updateURL);
         }
     }
@@ -80,6 +90,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
         if (searchBookName!= null && !searchBookName.isEmpty()) {
             updateURL = "https://api.douban.com/v2/book/search" + "?q=" + searchBookName;
             Log.d(RECYCLERVIEWACTIVITYTAG, "search book: " + searchBookName);
+            JSONParse(intent.getStringExtra(MainActivity.BOOKJSONKEY));
         } else {
 //        setTitle(intent.getStringExtra(MainActivity.USERNAMEKEY) + " 收藏的图书");
             username = intent.getStringExtra(MainActivity.USERNAMEKEY);

@@ -2,6 +2,7 @@ package com.example.leopeng.recyclerviewdemo;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -35,6 +36,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
 
     public LruCache<String, String> lruCache;
     public String cacheKey;
+    public String searchKey;
 
     private String TAG;
 
@@ -46,7 +48,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-//        Toast.makeText(mContext, "Loading ...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "Loading ...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -144,6 +146,14 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
         if (mContext instanceof RecyclerViewActivity) {
             ((RecyclerViewActivity) mContext).JSONParse(s);
             Toast.makeText(mContext, "Refresh Succeed", Toast.LENGTH_SHORT).show();
+        }
+
+        if (mContext instanceof MainActivity) {
+            Intent intent = new Intent(mContext, RecyclerViewActivity.class);
+            intent.putExtra(MainActivity.SEARCHKEY, (searchKey != null && !searchKey.isEmpty()) ? searchKey : "");
+            intent.putExtra(MainActivity.BOOKJSONKEY, s);
+            intent.putExtra(MainActivity.FIRSTLOADKEY, true);
+            mContext.startActivity(intent);
         }
     }
 

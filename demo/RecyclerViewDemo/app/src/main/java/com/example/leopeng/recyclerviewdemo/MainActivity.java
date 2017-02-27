@@ -147,10 +147,12 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Intent intent = new Intent(MainActivity.this, RecyclerViewActivity.class);
-                intent.putExtra(SEARCHKEY, query);
-                startActivity(intent);
-                return false;
+                CommonJsonTask commonJsonTask = new CommonJsonTask(MainActivity.this);
+                commonJsonTask.cacheKey = query + "_searchBook";
+                commonJsonTask.searchKey = query;
+                String url = "https://api.douban.com/v2/book/search" + "?q=" + query;
+                commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+                return true;
             }
 
             @Override
@@ -295,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             } else {
                 // Hit disk cache
-                jsonString = getUserCacheJSONString();
+                jsonString = getCacheJSONString(lowercaseUsername + "_cache");
                 if (jsonString != null && !jsonString.isEmpty()) {
                     intent.putExtra(BOOKJSONKEY, jsonString);
                     intent.putExtra(USERNAMEKEY, username);
@@ -320,6 +322,25 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader reader = null;
         try {
             file = new File(getCacheDir(), lowercaseUsername + "_cache");
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            String line;
+            StringBuffer buffer = new StringBuffer();
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+            }
+            return buffer.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private String getCacheJSONString(String fileName) {
+        File file = null;
+        BufferedReader reader = null;
+        try {
+            file = new File(getCacheDir(), fileName);
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             String line;
             StringBuffer buffer = new StringBuffer();
@@ -404,7 +425,7 @@ public class MainActivity extends AppCompatActivity {
                 // Store to temp file
                 if (!buffer.toString().isEmpty() && isTotalNotZero(buffer.toString())) {
                     Log.d(MAINACTIVITYTAG, buffer.toString());
-                    storeFile(lowercaseUsername, buffer.toString());
+                    storeFile(lowercaseUsername + "_cache", buffer.toString());
                 }
 
                 while (i <= 50) {
@@ -497,7 +518,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void storeFile(String filename, String value) {
-            File tempFile = getTempFile(filename + "_cache");
+            File tempFile = getTempFile(filename);
             FileOutputStream outputStream = null;
             try {
                 outputStream = new FileOutputStream(tempFile);
