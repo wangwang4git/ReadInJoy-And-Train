@@ -32,6 +32,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private String username;
     private String updateURL;
+    private String searchBookName;
 
     private ArrayList<Book> bookList;
     private static int cacheSize = 8 * 1024 * 1024;
@@ -67,22 +68,27 @@ public class RecyclerViewActivity extends AppCompatActivity {
         boolean firstLoad = getIntent().getBooleanExtra(MainActivity.FIRSTLOADKEY, false);
         if (updateURL != null && !updateURL.isEmpty() && !firstLoad) {
             CommonJsonTask commonJsonTask = new CommonJsonTask(RecyclerViewActivity.this);
-            commonJsonTask.cacheKey = username;
+            if (username != null && !username.isEmpty()) {
+                commonJsonTask.cacheKey = username;
+            }
             commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,updateURL);
         }
     }
 
     private void handleIntent(Intent intent) {
-        setTitle(intent.getStringExtra(MainActivity.USERNAMEKEY) + " 收藏的图书");
-        username = intent.getStringExtra(MainActivity.USERNAMEKEY);
-        updateURL = "https://api.douban.com/v2/book/user/" + username + "/collections?count=100";
-        String jsonString = intent.getStringExtra(MainActivity.BOOKJSONKEY);
-        JSONParse(jsonString);
-        Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
-//        if (bookList.size() == 0) {
-//            Book noBooksInfo = new Book("该用户没有收藏任何书本。", "", "", "", "");
-//            bookList.add(noBooksInfo);
-//        }
+        searchBookName = intent.getStringExtra(MainActivity.SEARCHKEY);
+        if (searchBookName!= null && !searchBookName.isEmpty()) {
+            updateURL = "https://api.douban.com/v2/book/search" + "?q=" + searchBookName;
+            Log.d(RECYCLERVIEWACTIVITYTAG, "search book: " + searchBookName);
+        } else {
+//        setTitle(intent.getStringExtra(MainActivity.USERNAMEKEY) + " 收藏的图书");
+            username = intent.getStringExtra(MainActivity.USERNAMEKEY);
+            updateURL = "https://api.douban.com/v2/book/user/" + username + "/collections?count=100";
+            String jsonString = intent.getStringExtra(MainActivity.BOOKJSONKEY);
+            JSONParse(jsonString);
+            Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
+        }
+
     }
 
     public void JSONParse(String jsonString) {
@@ -98,57 +104,98 @@ public class RecyclerViewActivity extends AppCompatActivity {
                 Log.d(RECYCLERVIEWACTIVITYTAG, "start: " + start);
                 Log.d(RECYCLERVIEWACTIVITYTAG, "total: " + total);
 
-//                if (Integer.parseInt(total) > 0) {
-//                  Book bookNumber = new Book(username + " 一共收藏了 " + total + " 本图书", "", "一次最多显示 100 本图书信息", "", "");
-//                   bookList.add(bookNumber);
-//                }
 
-                JSONArray jsonArray = json.getJSONArray("collections");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    try {
-                        JSONObject oneBook = jsonArray.getJSONObject(i);
-                        String updated = oneBook.getString("updated");
-                        String status = oneBook.getString("status");
+                JSONArray jsonArray = null;
+                if (json.has("collections")) {
+                    jsonArray = json.getJSONArray("collections");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        try {
+                            JSONObject oneBook = jsonArray.getJSONObject(i);
+                            String updated = oneBook.getString("updated");
+                            String status = oneBook.getString("status");
 
-                        JSONObject bookInfo = oneBook.getJSONObject("book");
-                        String bookTitle = bookInfo.getString("title");
-                        String summary = bookInfo.getString("summary");
-                        String imageURL = bookInfo.getString("image");
-                        JSONArray author = bookInfo.getJSONArray("author");
+                            JSONObject bookInfo = oneBook.getJSONObject("book");
+                            String bookTitle = bookInfo.getString("title");
+                            String summary = bookInfo.getString("summary");
+                            String imageURL = bookInfo.getString("image");
+                            JSONArray author = bookInfo.getJSONArray("author");
 
-                        String authorName = "";
-                        int maxAuthorNumber = Math.min(5, author.length());
-                        for (int j = 0; j < maxAuthorNumber; j++) {
-                            authorName += author.getString(j);
-                            if (j + 1 != maxAuthorNumber) {
-                                authorName += ", ";
+                            String authorName = "";
+                            int maxAuthorNumber = Math.min(5, author.length());
+                            for (int j = 0; j < maxAuthorNumber; j++) {
+                                authorName += author.getString(j);
+                                if (j + 1 != maxAuthorNumber) {
+                                    authorName += ", ";
+                                }
                             }
-                        }
 
-                        Book oneBookModel = new Book(bookTitle, authorName, summary, status, imageURL);
+                            Book oneBookModel = new Book(bookTitle, authorName, summary, status, imageURL);
 
-                        // Set rating info
-                        JSONObject rating = bookInfo.getJSONObject("rating");
-                        oneBookModel.setRating(rating.getString("max"), rating.getString("min"), rating.getString("numRaters"), rating.getString("average"));
+                            // Set rating info
+                            JSONObject rating = bookInfo.getJSONObject("rating");
+                            oneBookModel.setRating(rating.getString("max"), rating.getString("min"), rating.getString("numRaters"), rating.getString("average"));
 
-                        // Set tags info
-                        JSONArray tags = bookInfo.getJSONArray("tags");
+                            // Set tags info
+                            JSONArray tags = bookInfo.getJSONArray("tags");
 //                        int maxTagNumber = Math.min(10, tags.length());
-                        List<Book.Tag> tagsList = new ArrayList<Book.Tag>();
-                        for (int j = 0; j < tags.length(); j++) {
-                            JSONObject oneTag = tags.getJSONObject(j);
-                            Book.Tag tag = new Book.Tag();
-                            tag.count = oneTag.getInt("count");
-                            tag.tagName = oneTag.getString("name");
+                            List<Book.Tag> tagsList = new ArrayList<Book.Tag>();
+                            for (int j = 0; j < tags.length(); j++) {
+                                JSONObject oneTag = tags.getJSONObject(j);
+                                Book.Tag tag = new Book.Tag();
+                                tag.count = oneTag.getInt("count");
+                                tag.tagName = oneTag.getString("name");
 
-                            tagsList.add(tag);
+                                tagsList.add(tag);
+                            }
+                            oneBookModel.setTags(tagsList);
+
+                            bookList.add(oneBookModel);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                        oneBookModel.setTags(tagsList);
+                    }
+                } else if (json.has("books")) {
+                    jsonArray = json.getJSONArray("books");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        try {
+                            JSONObject oneBook = jsonArray.getJSONObject(i);
 
-                        bookList.add(oneBookModel);
+                            String bookTitle = oneBook.getString("title");
+                            String summary = oneBook.getString("summary");
+                            String imageURL = oneBook.getString("image");
+                            JSONArray author = oneBook.getJSONArray("author");
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                            String authorName = "";
+                            int maxAuthorNumber = Math.min(5, author.length());
+                            for (int j = 0; j < maxAuthorNumber; j++) {
+                                authorName += author.getString(j);
+                                if (j + 1 != maxAuthorNumber) {
+                                    authorName += ", ";
+                                }
+                            }
+
+                            Book oneBookModel = new Book(bookTitle, authorName, summary, "", imageURL);
+
+                            JSONObject rating = oneBook.getJSONObject("rating");
+                            oneBookModel.setRating(rating.getString("max"), rating.getString("min"), rating.getString("numRaters"), rating.getString("average"));
+
+                            JSONArray tags = oneBook.getJSONArray("tags");
+                            List<Book.Tag> tagsList = new ArrayList<Book.Tag>();
+                            for (int j = 0; j < tags.length(); j++) {
+                                JSONObject oneTag = tags.getJSONObject(j);
+                                Book.Tag tag = new Book.Tag();
+                                tag.count = oneTag.getInt("count");
+                                tag.tagName = oneTag.getString("name");
+
+                                tagsList.add(tag);
+                            }
+                            oneBookModel.setTags(tagsList);
+
+                            bookList.add(oneBookModel);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 

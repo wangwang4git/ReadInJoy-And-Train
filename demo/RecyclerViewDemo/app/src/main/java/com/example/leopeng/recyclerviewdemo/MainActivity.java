@@ -7,12 +7,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     public static String BOOKJSONKEY = "BOOKJSON";
     public static String USERNAMEKEY = "USERNAMEKEY";
     public static String FIRSTLOADKEY = "FIRSTLOAD";
+    public static String SEARCHKEY = "SEARCH";
     public final static String MAINACTIVITYTAG = "MainActivity";
 
     private final LruCache<String, String> lruCache;
@@ -60,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
     private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
     private List<String> usernameList;
     private ArrayAdapter adapter;
-    private boolean isOpened = false;
 
     public MainActivity() {
         lruCache = new LruCache<>(cacheSize);
@@ -135,6 +138,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.common_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.searchButton);
+        SearchView searchView =  (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setQueryHint("Search Books...");
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Intent intent = new Intent(MainActivity.this, RecyclerViewActivity.class);
+                intent.putExtra(SEARCHKEY, query);
+                startActivity(intent);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
         return true;
     }
 
