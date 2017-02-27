@@ -159,28 +159,4 @@ public class RecyclerViewActivity extends AppCompatActivity {
             }
         }
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.switch_button, menu);
-        return false;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_switch:
-                if (layoutManager.getClass() == LinearLayoutManager.class) {
-                    layoutManager = new GridLayoutManager(this, 1);
-                } else {
-                    layoutManager = new LinearLayoutManager(this);
-                }
-
-                recyclerView.setLayoutManager(layoutManager);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }

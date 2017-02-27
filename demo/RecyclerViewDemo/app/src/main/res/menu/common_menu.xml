@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_list"
-        android:icon="@drawable/ic_view_list_black_24dp"
-        android:title="RecyclerView"
+        android:id="@+id/search_button"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="search"
         app:showAsAction="ifRoom" />
 </menu>

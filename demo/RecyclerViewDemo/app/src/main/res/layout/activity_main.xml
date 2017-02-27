@@ -3,11 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:clickable="true"
     tools:context="com.example.leopeng.recyclerviewdemo.MainActivity"
     android:id="@+id/backgroundView"
     android:focusableInTouchMode="true">
+
+   <android.support.v7.widget.Toolbar
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:id="@+id/myToolbar"
+       android:background="?attr/colorPrimary"
+       android:elevation="4dp"
+       android:paddingLeft="8dp"
+       android:paddingRight="8dp"
+       android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+       app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+   </android.support.v7.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/activity_main"
@@ -24,7 +38,7 @@
             android:layout_height="wrap_content"
             android:hint="Input your user name"
             android:paddingTop="20dp"
-            android:paddingLeft="20dp"
+            android:paddingLeft="22dp"
             android:paddingBottom="20dp"
             android:layout_weight="1"
             android:id="@+id/username"
