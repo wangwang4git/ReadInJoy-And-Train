@@ -1,4 +1,4 @@
-package com.example.leopeng.recyclerviewdemo;
+package com.example.leopeng.recyclerviewdemo.model;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,6 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.leopeng.recyclerviewdemo.activity.DetailViewActivity;
+import com.example.leopeng.recyclerviewdemo.util.ImageDownloaderTask;
+import com.example.leopeng.recyclerviewdemo.R;
+import com.example.leopeng.recyclerviewdemo.activity.RecyclerViewActivity;
 
 import java.util.ArrayList;
 

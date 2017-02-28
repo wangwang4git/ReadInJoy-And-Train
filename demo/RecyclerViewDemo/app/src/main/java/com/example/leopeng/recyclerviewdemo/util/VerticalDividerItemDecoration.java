@@ -1,4 +1,4 @@
-package com.example.leopeng.recyclerviewdemo;
+package com.example.leopeng.recyclerviewdemo.util;
 
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;

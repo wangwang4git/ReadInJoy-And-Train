@@ -1,4 +1,4 @@
-package com.example.leopeng.recyclerviewdemo;
+package com.example.leopeng.recyclerviewdemo.util;
 
 /**
  * Created by leopeng on 28/02/2017.

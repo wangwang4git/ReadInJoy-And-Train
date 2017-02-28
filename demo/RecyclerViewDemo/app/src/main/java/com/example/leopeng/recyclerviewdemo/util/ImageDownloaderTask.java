@@ -1,4 +1,4 @@
-package com.example.leopeng.recyclerviewdemo;
+package com.example.leopeng.recyclerviewdemo.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -98,7 +98,7 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
         } catch (Exception e) {
             if (urlConnection != null) {
                 urlConnection.disconnect();
-                Log.w("ImageDownloader", "Error downloading image from " + url);
+                Log.d("ImageDownloader", "Error downloading image from " + url);
             }
         } finally {
             if (urlConnection != null) {

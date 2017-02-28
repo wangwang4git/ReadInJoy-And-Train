@@ -1,4 +1,4 @@
-package com.example.leopeng.recyclerviewdemo;
+package com.example.leopeng.recyclerviewdemo.model;
 
 
 import android.os.Parcelable;

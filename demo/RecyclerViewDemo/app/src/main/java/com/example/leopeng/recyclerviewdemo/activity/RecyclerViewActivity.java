@@ -1,4 +1,4 @@
-package com.example.leopeng.recyclerviewdemo;
+package com.example.leopeng.recyclerviewdemo.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -6,15 +6,19 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.LruCache;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+
+import com.example.leopeng.recyclerviewdemo.util.BookRequest;
+import com.example.leopeng.recyclerviewdemo.util.CommonJsonTask;
+import com.example.leopeng.recyclerviewdemo.util.Constant;
+import com.example.leopeng.recyclerviewdemo.R;
+import com.example.leopeng.recyclerviewdemo.util.VerticalDividerItemDecoration;
+import com.example.leopeng.recyclerviewdemo.model.Book;
+import com.example.leopeng.recyclerviewdemo.model.BookAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,7 +58,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
             handleIntent(getIntent());
         }
 
-        boolean firstLoad = getIntent().getBooleanExtra(MainActivity.FIRSTLOADKEY, false);
+        boolean firstLoad = getIntent().getBooleanExtra(Constant.FIRSTLOADKEY, false);
         if (updateURL != null && !updateURL.isEmpty() && !firstLoad) {
             CommonJsonTask commonJsonTask = new CommonJsonTask(RecyclerViewActivity.this);
             if (username != null && !username.isEmpty()) {
@@ -94,15 +98,15 @@ public class RecyclerViewActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        searchBookName = intent.getStringExtra(MainActivity.SEARCHKEY);
+        searchBookName = intent.getStringExtra(Constant.SEARCHKEY);
         if (searchBookName!= null && !searchBookName.isEmpty()) {
             updateURL = BookRequest.getSearchBooksURL(searchBookName);
             Log.d(RECYCLERVIEWACTIVITYTAG, "search book: " + searchBookName);
-            updateBookList(JSONParse(intent.getStringExtra(MainActivity.BOOKJSONKEY)));
+            updateBookList(JSONParse(intent.getStringExtra(Constant.BOOKJSONKEY)));
         } else {
-            username = intent.getStringExtra(MainActivity.USERNAMEKEY);
+            username = intent.getStringExtra(Constant.USERNAMEKEY);
             updateURL = BookRequest.getUserCollectionsURL(username);
-            String jsonString = intent.getStringExtra(MainActivity.BOOKJSONKEY);
+            String jsonString = intent.getStringExtra(Constant.BOOKJSONKEY);
             updateBookList(JSONParse(jsonString));
             Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
         }
@@ -232,9 +236,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
         return res;
     }
 
-    public void updateBookList(List<Book> newbookList) {
+    public void updateBookList(List<Book> newBookList) {
         bookList.clear();
-        bookList.addAll(newbookList);
+        bookList.addAll(newBookList);
 
         adapter.notifyDataSetChanged();
     }

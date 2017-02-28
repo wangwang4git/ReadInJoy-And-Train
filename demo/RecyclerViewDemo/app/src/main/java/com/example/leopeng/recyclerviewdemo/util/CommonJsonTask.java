@@ -1,13 +1,15 @@
-package com.example.leopeng.recyclerviewdemo;
+package com.example.leopeng.recyclerviewdemo.util;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.Toast;
+
+import com.example.leopeng.recyclerviewdemo.activity.MainActivity;
+import com.example.leopeng.recyclerviewdemo.activity.RecyclerViewActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -150,9 +152,9 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
 
         if (mContext instanceof MainActivity) {
             Intent intent = new Intent(mContext, RecyclerViewActivity.class);
-            intent.putExtra(MainActivity.SEARCHKEY, (searchKey != null && !searchKey.isEmpty()) ? searchKey : "");
-            intent.putExtra(MainActivity.BOOKJSONKEY, s);
-            intent.putExtra(MainActivity.FIRSTLOADKEY, true);
+            intent.putExtra(Constant.SEARCHKEY, (searchKey != null && !searchKey.isEmpty()) ? searchKey : "");
+            intent.putExtra(Constant.BOOKJSONKEY, s);
+            intent.putExtra(Constant.FIRSTLOADKEY, true);
             mContext.startActivity(intent);
         }
     }
