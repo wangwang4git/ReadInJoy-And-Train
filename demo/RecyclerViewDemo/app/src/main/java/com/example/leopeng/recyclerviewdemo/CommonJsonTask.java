@@ -94,7 +94,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
             // Store to disk cache
            if (cacheKey != null && !cacheKey.isEmpty())  {
                if (isTotalNotZero(buffer.toString())) {
-                   storeCacheFile(cacheKey + "_cache", buffer.toString());
+                   storeCacheFile(cacheKey, buffer.toString());
                }
            }
 

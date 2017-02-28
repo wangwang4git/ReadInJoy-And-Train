@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             } else {
                 // Hit disk cache
-                jsonString = getCacheJSONString(lowercaseUsername + "_cache");
+                jsonString = getCacheJSONString(lowercaseUsername);
                 if (jsonString != null && !jsonString.isEmpty()) {
                     intent.putExtra(BOOKJSONKEY, jsonString);
                     intent.putExtra(USERNAMEKEY, username);
@@ -311,29 +311,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    public LruCache<String, String> getLruCache() {
-        return this.lruCache;
-    }
-
-    private String getUserCacheJSONString() {
-        File file = null;
-        BufferedReader reader = null;
-        try {
-            file = new File(getCacheDir(), lowercaseUsername + "_cache");
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            String line;
-            StringBuffer buffer = new StringBuffer();
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line);
-            }
-            return buffer.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     private String getCacheJSONString(String fileName) {
@@ -425,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
                 // Store to temp file
                 if (!buffer.toString().isEmpty() && isTotalNotZero(buffer.toString())) {
                     Log.d(MAINACTIVITYTAG, buffer.toString());
-                    storeFile(lowercaseUsername + "_cache", buffer.toString());
+                    storeFile(lowercaseUsername, buffer.toString());
                 }
 
                 while (i <= 50) {
