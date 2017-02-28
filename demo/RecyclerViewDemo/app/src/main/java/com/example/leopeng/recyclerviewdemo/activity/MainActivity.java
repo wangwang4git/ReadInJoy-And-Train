@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private List<String> bookNameList;
     private ArrayAdapter usernameAdapter;
     private ArrayAdapter bookNameAdapter;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Init search book name history
         bookNameModel = new BookNameSearchHistoryModel(mContext);
-        bookNameModel.setBookNameList(bookNameList);
 
         backgroundView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -124,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Init bookName search history ListView
-
         bookNameHistoryListView.setAdapter(bookNameAdapter);
         bookNameHistoryListView.setDividerHeight(2);
         bookNameHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -136,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (searchBookName != null && !searchBookName.isEmpty()) {
                     bookNameModel.insert(searchBookName);
+                    searchView.setQuery(searchBookName, false);
                 }
 
                 if (searchBookName != null && !searchBookName.isEmpty()) {
@@ -155,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
         usernameModel.getInfoFromDB();
         usernameAdapter.notifyDataSetChanged();
 
-        bookNameModel.get();
+        bookNameList.clear();
+        bookNameList.addAll(bookNameModel.get());
         bookNameAdapter.notifyDataSetChanged();
     }
 
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.common_menu, menu);
 
         MenuItem searchItem = menu.findItem(R.id.searchButton);
-        SearchView searchView =  (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView =  (SearchView) MenuItemCompat.getActionView(searchItem);
 
         searchView.setQueryHint("Search Books...");
 
@@ -203,7 +204,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 bookNameHistoryListView.setVisibility(View.VISIBLE);
-                bookNameModel.get();
+                bookNameList.clear();
+                bookNameList.addAll(bookNameModel.get());
                 bookNameAdapter.notifyDataSetChanged();
             }
         });

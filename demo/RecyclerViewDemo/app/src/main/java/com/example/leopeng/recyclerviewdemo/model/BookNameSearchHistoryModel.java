@@ -16,15 +16,11 @@ import java.util.List;
 
 public class BookNameSearchHistoryModel {
     private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
-    private List<String> bookNameList;
 
     public BookNameSearchHistoryModel(Context context) {
         searchHistoryDBHelper = new SearchHistory.SearchHistoryDBHelper(context);
     }
 
-    public void setBookNameList(List<String> list) {
-        this.bookNameList = list;
-    }
 
     public long insert(String keyword) {
         if (isExistEntry(keyword)) {
@@ -92,7 +88,7 @@ public class BookNameSearchHistoryModel {
         return count > 0;
     }
 
-    public void get() {
+    public List<String> get() {
         SQLiteDatabase db = searchHistoryDBHelper.getReadableDatabase();
         String[] projections = {
                 SearchHistory.BookNameSearchHistoryTable._ID,
@@ -114,23 +110,19 @@ public class BookNameSearchHistoryModel {
                 limits
         );
 
-        if (bookNameList == null) {
-            bookNameList = new ArrayList<>();
-        }
-
-        bookNameList.clear();
-
+        List<String> list = new ArrayList<>();
 
         while (cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndexOrThrow(SearchHistory.BookNameSearchHistoryTable.COLUMN_NAME_SEARCH_WORD));
-            bookNameList.add(name);
+            list.add(name);
         }
 
-        for (String bookName : bookNameList) {
+        for (String bookName : list) {
             Log.d(BookNameSearchHistoryModel.class.getName(), "bookName: " + bookName);
         }
 
         cursor.close();
         db.close();
+        return list;
     }
 }
