@@ -13,20 +13,20 @@ public final class SearchHistory {
     private SearchHistory() {
     }
 
-    public static class SearchHistoryTable implements BaseColumns {
+    public static class UsernameSearchHistoryTable implements BaseColumns {
         public static final String TABLE_NAME = "searchHistory";
         public static final String COLUMN_NAME_SEARCH_WORD = "searchWord";
         public static final String COLUMN_NAME_UPDATED_AT = "updatedAt";
     }
 
     private static final String SQL_CREATE_TABLE =
-            "CREATE TABLE " + SearchHistoryTable.TABLE_NAME + " (" +
-                    SearchHistoryTable._ID + " INTEGER PRIMARY KEY," +
-                    SearchHistoryTable.COLUMN_NAME_SEARCH_WORD + " TEXT," +
-                    SearchHistoryTable.COLUMN_NAME_UPDATED_AT + " TEXT)";
+            "CREATE TABLE " + UsernameSearchHistoryTable.TABLE_NAME + " (" +
+                    UsernameSearchHistoryTable._ID + " INTEGER PRIMARY KEY," +
+                    UsernameSearchHistoryTable.COLUMN_NAME_SEARCH_WORD + " TEXT," +
+                    UsernameSearchHistoryTable.COLUMN_NAME_UPDATED_AT + " TEXT)";
 
     private static final String SQL_DELETE_TABLE =
-            "DROP TABLE IF EXISTS " + SearchHistoryTable.TABLE_NAME;
+            "DROP TABLE IF EXISTS " + UsernameSearchHistoryTable.TABLE_NAME;
 
 
     public static class SearchHistoryDBHelper extends SQLiteOpenHelper {

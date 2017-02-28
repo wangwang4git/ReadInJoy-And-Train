@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.LruCache;
 import android.widget.Toast;
 
 import com.example.leopeng.recyclerviewdemo.activity.MainActivity;
@@ -36,7 +35,6 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     private volatile boolean network = true;
     private Context mContext;
 
-    public LruCache<String, String> lruCache;
     public String cacheKey;
     public String searchKey;
 
@@ -79,18 +77,6 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
             while ((line = reader.readLine()) != null) {
                 buffer.append(line + "\n");
                 Log.d(TAG, "Response: > " + line);
-            }
-
-            // Store to memory cache
-            if (lruCache != null) {
-               synchronized (lruCache) {
-                   if (cacheKey != null && !cacheKey.isEmpty()) {
-                       if (isTotalNotZero(buffer.toString())) {
-                           lruCache.put(cacheKey, buffer.toString());
-                           Log.d(TAG, "Store cache to memory");
-                       }
-                   }
-               }
             }
 
             // Store to disk cache
@@ -152,9 +138,9 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
 
         if (mContext instanceof MainActivity) {
             Intent intent = new Intent(mContext, RecyclerViewActivity.class);
-            intent.putExtra(Constant.SEARCHKEY, (searchKey != null && !searchKey.isEmpty()) ? searchKey : "");
-            intent.putExtra(Constant.BOOKJSONKEY, s);
-            intent.putExtra(Constant.FIRSTLOADKEY, true);
+            intent.putExtra(Constant.SEARCH_KEY, (searchKey != null && !searchKey.isEmpty()) ? searchKey : "");
+            intent.putExtra(Constant.BOOK_JSON_KEY, s);
+            intent.putExtra(Constant.FIRST_LOAD_KEY, true);
             mContext.startActivity(intent);
         }
     }

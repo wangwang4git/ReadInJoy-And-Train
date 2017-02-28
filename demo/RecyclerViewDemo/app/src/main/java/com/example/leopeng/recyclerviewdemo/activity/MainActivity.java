@@ -135,7 +135,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Intent intent = new Intent(mContext, RecyclerViewActivity.class);
-                intent.putExtra(Constant.SEARCHKEY, query);
+                intent.putExtra(Constant.SEARCH_KEY, query);
+                String jsonString = getCacheJSONString(Constant.SEARCH_BOOK_CACHE_FILE_PREFIX + query.toLowerCase());
+                if (jsonString != null && !jsonString.isEmpty()) {
+                    intent.putExtra(Constant.BOOK_JSON_KEY, jsonString);
+                }
                 startActivity(intent);
                 return true;
             }
@@ -173,11 +177,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Intent intent = new Intent(mContext, RecyclerViewActivity.class);
-        intent.putExtra(Constant.USERNAMEKEY, username);
+        intent.putExtra(Constant.USERNAME_KEY, username);
 
         String jsonString = getCacheJSONString(lowercaseUsername);
         if (jsonString != null && !jsonString.isEmpty()) {
-            intent.putExtra(Constant.BOOKJSONKEY, jsonString);
+            intent.putExtra(Constant.BOOK_JSON_KEY, jsonString);
             Log.d(MainActivity.class.getName(), "Hit disk cache!");
         }
 

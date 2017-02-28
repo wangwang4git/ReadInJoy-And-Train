@@ -6,8 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.example.leopeng.recyclerviewdemo.activity.MainActivity;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,12 +39,12 @@ public class UsernameSearchHistoryModel {
         SQLiteDatabase db = searchHistoryDBHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD, lowercaseUsername);
+        values.put(SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_SEARCH_WORD, lowercaseUsername);
 
         Date now = new Date();
-        values.put(SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT, now.getTime());
+        values.put(SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_UPDATED_AT, now.getTime());
 
-        return db.insert(SearchHistory.SearchHistoryTable.TABLE_NAME, null, values);
+        return db.insert(SearchHistory.UsernameSearchHistoryTable.TABLE_NAME, null, values);
     }
 
     public boolean updateInfoIntoDB(String username) {
@@ -55,13 +53,13 @@ public class UsernameSearchHistoryModel {
         ContentValues values = new ContentValues();
 
         Date now = new Date();
-        values.put(SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT, now.getTime());
+        values.put(SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_UPDATED_AT, now.getTime());
 
-        String selection = SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD + " LIKE ?";
+        String selection = SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_SEARCH_WORD + " LIKE ?";
         String[] selectionArgs = { username };
 
         int count = db.update(
-                SearchHistory.SearchHistoryTable.TABLE_NAME,
+                SearchHistory.UsernameSearchHistoryTable.TABLE_NAME,
                 values,
                 selection,
                 selectionArgs
@@ -72,13 +70,13 @@ public class UsernameSearchHistoryModel {
 
     public boolean isExistInfo() {
         SQLiteDatabase db = searchHistoryDBHelper.getReadableDatabase();
-        String[] projections = {SearchHistory.SearchHistoryTable._ID};
+        String[] projections = {SearchHistory.UsernameSearchHistoryTable._ID};
 
-        String selection = SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD + " = ?";
+        String selection = SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_SEARCH_WORD + " = ?";
         String[] selectionArgs = {lowercaseUsername};
 
         Cursor cursor = db.query(
-                SearchHistory.SearchHistoryTable.TABLE_NAME,
+                SearchHistory.UsernameSearchHistoryTable.TABLE_NAME,
                 projections,
                 selection,
                 selectionArgs,
@@ -95,16 +93,16 @@ public class UsernameSearchHistoryModel {
     public void getInfoFromDB() {
         SQLiteDatabase db = searchHistoryDBHelper.getReadableDatabase();
         String[] projections = {
-                SearchHistory.SearchHistoryTable._ID,
-                SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD,
-                SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT
+                SearchHistory.UsernameSearchHistoryTable._ID,
+                SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_SEARCH_WORD,
+                SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_UPDATED_AT
         };
 
-        String sortOrder = SearchHistory.SearchHistoryTable.COLUMN_NAME_UPDATED_AT + " DESC";
+        String sortOrder = SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_UPDATED_AT + " DESC";
         String limits = "5";
 
         Cursor cursor = db.query(
-                SearchHistory.SearchHistoryTable.TABLE_NAME,
+                SearchHistory.UsernameSearchHistoryTable.TABLE_NAME,
                 projections,
                 null,
                 null,
@@ -121,7 +119,7 @@ public class UsernameSearchHistoryModel {
         usernameList.clear();
 
         while (cursor.moveToNext()) {
-            String name = cursor.getString(cursor.getColumnIndexOrThrow(SearchHistory.SearchHistoryTable.COLUMN_NAME_SEARCH_WORD));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_SEARCH_WORD));
             usernameList.add(name);
         }
 

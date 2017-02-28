@@ -58,14 +58,14 @@ public class RecyclerViewActivity extends AppCompatActivity {
             handleIntent(getIntent());
         }
 
-        boolean firstLoad = getIntent().getBooleanExtra(Constant.FIRSTLOADKEY, false);
+        boolean firstLoad = getIntent().getBooleanExtra(Constant.FIRST_LOAD_KEY, false);
         if (updateURL != null && !updateURL.isEmpty() && !firstLoad) {
             CommonJsonTask commonJsonTask = new CommonJsonTask(RecyclerViewActivity.this);
             if (username != null && !username.isEmpty()) {
                 commonJsonTask.cacheKey = username;
             }
             if (searchBookName != null && !searchBookName.isEmpty()) {
-                commonJsonTask.cacheKey = "searchBook_" + searchBookName;
+                commonJsonTask.cacheKey = Constant.SEARCH_BOOK_CACHE_FILE_PREFIX + searchBookName;
             }
             commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,updateURL);
         }
@@ -98,15 +98,15 @@ public class RecyclerViewActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        searchBookName = intent.getStringExtra(Constant.SEARCHKEY);
+        searchBookName = intent.getStringExtra(Constant.SEARCH_KEY).toLowerCase();
         if (searchBookName!= null && !searchBookName.isEmpty()) {
             updateURL = BookRequest.getSearchBooksURL(searchBookName);
             Log.d(RECYCLERVIEWACTIVITYTAG, "search book: " + searchBookName);
-            updateBookList(JSONParse(intent.getStringExtra(Constant.BOOKJSONKEY)));
+            updateBookList(JSONParse(intent.getStringExtra(Constant.BOOK_JSON_KEY)));
         } else {
-            username = intent.getStringExtra(Constant.USERNAMEKEY);
+            username = intent.getStringExtra(Constant.USERNAME_KEY);
             updateURL = BookRequest.getUserCollectionsURL(username);
-            String jsonString = intent.getStringExtra(Constant.BOOKJSONKEY);
+            String jsonString = intent.getStringExtra(Constant.BOOK_JSON_KEY);
             updateBookList(JSONParse(jsonString));
             Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
         }
