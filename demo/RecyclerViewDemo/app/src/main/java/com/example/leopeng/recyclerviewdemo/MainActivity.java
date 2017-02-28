@@ -52,10 +52,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText editText;
     private ViewGroup backgroudView;
     private ListView searchHistoryListView;
-    public static String BOOKJSONKEY = "BOOKJSON";
-    public static String USERNAMEKEY = "USERNAMEKEY";
-    public static String FIRSTLOADKEY = "FIRSTLOAD";
-    public static String SEARCHKEY = "SEARCH";
+    public final static String BOOKJSONKEY = "BOOKJSON";
+    public final static String USERNAMEKEY = "USERNAMEKEY";
+    public final static String FIRSTLOADKEY = "FIRSTLOAD";
+    public final static String SEARCHKEY = "SEARCH";
     public final static String MAINACTIVITYTAG = "MainActivity";
 
     private final LruCache<String, String> lruCache;
@@ -147,11 +147,9 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                CommonJsonTask commonJsonTask = new CommonJsonTask(MainActivity.this);
-                commonJsonTask.cacheKey = query + "_searchBook";
-                commonJsonTask.searchKey = query;
-                String url = "https://api.douban.com/v2/book/search" + "?q=" + query;
-                commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+                Intent intent = new Intent(MainActivity.this, RecyclerViewActivity.class);
+                intent.putExtra(SEARCHKEY, query);
+                startActivity(intent);
                 return true;
             }
 
@@ -286,31 +284,42 @@ public class MainActivity extends AppCompatActivity {
             updateInfoIntoDB(lowercaseUsername);
         }
 
-        synchronized (lruCache) {
-            // Hit memory cache
-            String jsonString = lruCache.get(lowercaseUsername);
-            if (jsonString != null && !jsonString.isEmpty()) {
-                intent.putExtra(BOOKJSONKEY, lruCache.get(lowercaseUsername));
-                intent.putExtra(USERNAMEKEY, username);
-                intent.putExtra(FIRSTLOADKEY, false);
-                Log.d(MAINACTIVITYTAG, "Hit memory cache!");
-                startActivity(intent);
-            } else {
-                // Hit disk cache
-                jsonString = getCacheJSONString(lowercaseUsername);
-                if (jsonString != null && !jsonString.isEmpty()) {
-                    intent.putExtra(BOOKJSONKEY, jsonString);
-                    intent.putExtra(USERNAMEKEY, username);
-                    intent.putExtra(FIRSTLOADKEY, false);
-                    Log.d(MAINACTIVITYTAG, "Hit disk cache!");
-                    startActivity(intent);
-                } else {
-                    String url = "https://api.douban.com/v2/book/user/" + username + "/collections?count=100";
-                    Log.d(MAINACTIVITYTAG, url);
-                    new JsonTask().execute(url);
-                }
-            }
+        Intent intent = new Intent(MainActivity.this, RecyclerViewActivity.class);
+        intent.putExtra(USERNAMEKEY, username);
+
+        String jsonString = getCacheJSONString(lowercaseUsername);
+        if (jsonString != null && !jsonString.isEmpty()) {
+            intent.putExtra(BOOKJSONKEY, jsonString);
+            Log.d(MAINACTIVITYTAG, "Hit disk cache!");
         }
+
+        startActivity(intent);
+
+//        synchronized (lruCache) {
+//            // Hit memory cache
+//            String jsonString = lruCache.get(lowercaseUsername);
+//            if (jsonString != null && !jsonString.isEmpty()) {
+//                intent.putExtra(BOOKJSONKEY, lruCache.get(lowercaseUsername));
+//                intent.putExtra(USERNAMEKEY, username);
+//                intent.putExtra(FIRSTLOADKEY, false);
+//                Log.d(MAINACTIVITYTAG, "Hit memory cache!");
+//                startActivity(intent);
+//            } else {
+//                // Hit disk cache
+//                jsonString = getCacheJSONString(lowercaseUsername);
+//                if (jsonString != null && !jsonString.isEmpty()) {
+//                    intent.putExtra(BOOKJSONKEY, jsonString);
+//                    intent.putExtra(USERNAMEKEY, username);
+//                    intent.putExtra(FIRSTLOADKEY, false);
+//                    Log.d(MAINACTIVITYTAG, "Hit disk cache!");
+//                    startActivity(intent);
+//                } else {
+//                    String url = BookRequest.getUserCollectionsURL(username);
+//                    Log.d(MAINACTIVITYTAG, url);
+//                    new CommonJsonTask(MainActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+//                }
+//            }
+//        }
     }
 
     private String getCacheJSONString(String fileName) {

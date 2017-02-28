@@ -144,7 +144,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         if (mContext instanceof RecyclerViewActivity) {
-            ((RecyclerViewActivity) mContext).JSONParse(s);
+            ((RecyclerViewActivity) mContext).updateBookList(((RecyclerViewActivity) mContext).JSONParse(s));
             Toast.makeText(mContext, "Refresh Succeed", Toast.LENGTH_SHORT).show();
         }
 

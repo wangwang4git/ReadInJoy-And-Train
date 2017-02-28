@@ -47,26 +47,8 @@ public class RecyclerViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycler_view);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
-        myToolbar= (Toolbar) findViewById(R.id.myRecyclerViewToolbar);
-        myToolbar.setTitle("BookLists");
-        setSupportActionBar(myToolbar);
-
-        bookList = new ArrayList<Book>();
-
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        VerticalDividerItemDecoration verticalDividerItemDecoration = new VerticalDividerItemDecoration(10);
-        recyclerView.addItemDecoration(verticalDividerItemDecoration);
-
-        this.bitmapLruCache = new LruCache<String, Bitmap>(cacheSize) {
-        };
-
-        adapter = new BookAdapter(bookList, bitmapLruCache);
-        recyclerView.setAdapter(adapter);
+        init();
 
         if (getIntent() != null) {
             handleIntent(getIntent());
@@ -85,26 +67,56 @@ public class RecyclerViewActivity extends AppCompatActivity {
         }
     }
 
+    private void init() {
+
+        // Init RecyclerView
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // Add RecyclerView Item Decoration
+        VerticalDividerItemDecoration verticalDividerItemDecoration = new VerticalDividerItemDecoration(10);
+        recyclerView.addItemDecoration(verticalDividerItemDecoration);
+
+        // Init Adapter
+        bookList = new ArrayList<Book>();
+        adapter = new BookAdapter(bookList, bitmapLruCache);
+        recyclerView.setAdapter(adapter);
+
+        // Init Toolbar
+        myToolbar= (Toolbar) findViewById(R.id.myRecyclerViewToolbar);
+        myToolbar.setTitle("BookLists");
+        setSupportActionBar(myToolbar);
+
+        // Init Image Cache
+        this.bitmapLruCache = new LruCache<>(cacheSize);
+    }
+
     private void handleIntent(Intent intent) {
         searchBookName = intent.getStringExtra(MainActivity.SEARCHKEY);
         if (searchBookName!= null && !searchBookName.isEmpty()) {
-            updateURL = "https://api.douban.com/v2/book/search" + "?q=" + searchBookName;
+            updateURL = BookRequest.getSearchBooksURL(searchBookName);
             Log.d(RECYCLERVIEWACTIVITYTAG, "search book: " + searchBookName);
-            JSONParse(intent.getStringExtra(MainActivity.BOOKJSONKEY));
+            updateBookList(JSONParse(intent.getStringExtra(MainActivity.BOOKJSONKEY)));
         } else {
-//        setTitle(intent.getStringExtra(MainActivity.USERNAMEKEY) + " 收藏的图书");
             username = intent.getStringExtra(MainActivity.USERNAMEKEY);
-            updateURL = "https://api.douban.com/v2/book/user/" + username + "/collections?count=100";
+            updateURL = BookRequest.getUserCollectionsURL(username);
             String jsonString = intent.getStringExtra(MainActivity.BOOKJSONKEY);
-            JSONParse(jsonString);
+            updateBookList(JSONParse(jsonString));
             Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
         }
 
     }
 
-    public void JSONParse(String jsonString) {
+    /**
+     * 分析回包的json字符串 (目前支持解析两种回包：1. 用户收藏的书本 2. 搜索图书返回结果)
+     * @param jsonString json字符串
+     * @return List
+     */
+    public List<Book> JSONParse(String jsonString) {
+        List<Book> res = new ArrayList<>();
         if (jsonString != null && !jsonString.isEmpty() ) {
-            bookList.clear();
             try {
                 JSONObject json = new JSONObject(jsonString);
                 String count = json.getString("count");
@@ -115,8 +127,8 @@ public class RecyclerViewActivity extends AppCompatActivity {
                 Log.d(RECYCLERVIEWACTIVITYTAG, "start: " + start);
                 Log.d(RECYCLERVIEWACTIVITYTAG, "total: " + total);
 
-
                 JSONArray jsonArray = null;
+
                 if (json.has("collections")) {
                     jsonArray = json.getJSONArray("collections");
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -160,7 +172,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
                             }
                             oneBookModel.setTags(tagsList);
 
-                            bookList.add(oneBookModel);
+                            res.add(oneBookModel);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -203,18 +215,27 @@ public class RecyclerViewActivity extends AppCompatActivity {
                             }
                             oneBookModel.setTags(tagsList);
 
-                            bookList.add(oneBookModel);
+                            res.add(oneBookModel);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 }
 
-                adapter.notifyDataSetChanged();
+//                adapter.notifyDataSetChanged();
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
+
+        return res;
+    }
+
+    public void updateBookList(List<Book> newbookList) {
+        bookList.clear();
+        bookList.addAll(newbookList);
+
+        adapter.notifyDataSetChanged();
     }
 }

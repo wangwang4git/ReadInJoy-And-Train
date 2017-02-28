@@ -26,7 +26,7 @@
         android:id="@+id/recyclerView"
         android:scrollbars="vertical"
         android:background="#ECEFF1"
-        android:layout_marginTop="14dp">
+        android:layout_marginTop="54dp">
 
     </android.support.v7.widget.RecyclerView>
 
