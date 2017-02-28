@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.leopeng.recyclerviewdemo.model.BookNameSearchHistoryModel;
 import com.example.leopeng.recyclerviewdemo.model.UsernameSearchHistoryModel;
 import com.example.leopeng.recyclerviewdemo.util.Constant;
 import com.example.leopeng.recyclerviewdemo.R;
@@ -42,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private Context mContext;
     private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
-    private UsernameSearchHistoryModel model;
+    private UsernameSearchHistoryModel usernameModel;
+    private BookNameSearchHistoryModel bookNameModel;
     private List<String> usernameList;
     private ArrayAdapter adapter;
 
@@ -57,10 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         // Get the init instance
+        username = "";
+        lowercaseUsername = "";
         mToolbar = (Toolbar) findViewById(R.id.myToolbar);
         editText = (EditText) findViewById(R.id.username);
         backgroundView = (ViewGroup) findViewById(R.id.backgroundView);
-        searchHistoryListView = (ListView) findViewById(R.id.searchHistory);
+        searchHistoryListView = (ListView) findViewById(R.id.search_history);
         searchHistoryDBHelper = new SearchHistory.SearchHistoryDBHelper(this);
         usernameList = new ArrayList<>();
         adapter = new ArrayAdapter<String>(mContext, R.layout.username_item, usernameList);
@@ -71,8 +75,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
 
         // Init search username history
-        model = new UsernameSearchHistoryModel(mContext);
-        model.setUsernameList(usernameList);
+        usernameModel = new UsernameSearchHistoryModel(mContext);
+        usernameModel.setUsernameList(usernameList);
+
+        // Init search book name history
+        bookNameModel = new BookNameSearchHistoryModel(mContext);
 
         backgroundView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -87,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    model.getInfoFromDB();
+                    usernameModel.getInfoFromDB();
                     adapter.notifyDataSetChanged();
                     searchHistoryListView.setVisibility(View.VISIBLE);
                 } else {
@@ -112,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        model.getInfoFromDB();
+        usernameModel.getInfoFromDB();
         adapter.notifyDataSetChanged();
     }
 
@@ -140,7 +147,14 @@ public class MainActivity extends AppCompatActivity {
                 if (jsonString != null && !jsonString.isEmpty()) {
                     intent.putExtra(Constant.BOOK_JSON_KEY, jsonString);
                 }
-                startActivity(intent);
+                if (!query.isEmpty()) {
+                    bookNameModel.insert(query);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(mContext, "Please enter key words.", Toast.LENGTH_SHORT).show();
+                }
+
+
                 return true;
             }
 
@@ -159,7 +173,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void jumpToBookList() {
-        lowercaseUsername = username.toLowerCase();
+        if (username != null) {
+            lowercaseUsername = username.toLowerCase();
+        }
 
         Log.d(MainActivity.class.getName(), "Username: " + username);
         Log.d(MainActivity.class.getName(), "LowerCaseUsername: " + lowercaseUsername);
@@ -169,11 +185,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        model.setLowercaseUsername(lowercaseUsername);
-        if (!model.isExistInfo()) {
-            model.putInfoIntoDB();
+        usernameModel.setLowercaseUsername(lowercaseUsername);
+        if (!usernameModel.isExistInfo()) {
+            usernameModel.putInfoIntoDB();
         } else {
-            model.updateInfoIntoDB(lowercaseUsername);
+            usernameModel.updateInfoIntoDB(lowercaseUsername);
         }
 
         Intent intent = new Intent(mContext, RecyclerViewActivity.class);

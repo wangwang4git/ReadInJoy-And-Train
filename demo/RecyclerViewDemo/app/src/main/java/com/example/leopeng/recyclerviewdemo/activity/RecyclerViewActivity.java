@@ -98,8 +98,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        searchBookName = intent.getStringExtra(Constant.SEARCH_KEY).toLowerCase();
+        searchBookName = intent.getStringExtra(Constant.SEARCH_KEY);
         if (searchBookName!= null && !searchBookName.isEmpty()) {
+            searchBookName = searchBookName.toLowerCase();
             updateURL = BookRequest.getSearchBooksURL(searchBookName);
             Log.d(RECYCLERVIEWACTIVITYTAG, "search book: " + searchBookName);
             updateBookList(JSONParse(intent.getStringExtra(Constant.BOOK_JSON_KEY)));

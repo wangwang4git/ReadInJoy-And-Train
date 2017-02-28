@@ -20,7 +20,7 @@ public class UsernameSearchHistoryModel {
     private List<String> usernameList;
 
     public UsernameSearchHistoryModel(Context context) {
-        searchHistoryDBHelper = new  SearchHistory.SearchHistoryDBHelper(context);
+        searchHistoryDBHelper = new SearchHistory.SearchHistoryDBHelper(context);
     }
 
     public void setLowercaseUsername(String username) {
