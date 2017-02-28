@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,9 +16,14 @@ import java.util.List;
 
 public class BookNameSearchHistoryModel {
     private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
+    private List<String> bookNameList;
 
     public BookNameSearchHistoryModel(Context context) {
         searchHistoryDBHelper = new SearchHistory.SearchHistoryDBHelper(context);
+    }
+
+    public void setBookNameList(List<String> list) {
+        this.bookNameList = list;
     }
 
     public long insert(String keyword) {
@@ -34,7 +40,11 @@ public class BookNameSearchHistoryModel {
         Date now = new Date();
         values.put(SearchHistory.BookNameSearchHistoryTable.COLUMN_NAME_UPDATED_AT, now.getTime());
 
-        return db.insert(SearchHistory.BookNameSearchHistoryTable.TABLE_NAME, null, values);
+        Log.d(BookNameSearchHistoryModel.class.getName(), "Insert: " + keyword);
+
+        long id = db.insert(SearchHistory.BookNameSearchHistoryTable.TABLE_NAME, null, values);
+        db.close();
+        return id;
     }
 
     public boolean isExistEntry(String keyword) {
@@ -56,6 +66,7 @@ public class BookNameSearchHistoryModel {
 
         boolean res = cursor.getCount() > 0;
         cursor.close();
+        db.close();
         return res;
     }
 
@@ -77,10 +88,11 @@ public class BookNameSearchHistoryModel {
                 selectionArgs
         );
 
+        db.close();
         return count > 0;
     }
 
-    public List<String> get() {
+    public void get() {
         SQLiteDatabase db = searchHistoryDBHelper.getReadableDatabase();
         String[] projections = {
                 SearchHistory.BookNameSearchHistoryTable._ID,
@@ -102,15 +114,23 @@ public class BookNameSearchHistoryModel {
                 limits
         );
 
-        List<String> list = new ArrayList<>();
+        if (bookNameList == null) {
+            bookNameList = new ArrayList<>();
+        }
+
+        bookNameList.clear();
+
 
         while (cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndexOrThrow(SearchHistory.BookNameSearchHistoryTable.COLUMN_NAME_SEARCH_WORD));
-            list.add(name);
+            bookNameList.add(name);
+        }
+
+        for (String bookName : bookNameList) {
+            Log.d(BookNameSearchHistoryModel.class.getName(), "bookName: " + bookName);
         }
 
         cursor.close();
-
-        return list;
+        db.close();
     }
 }

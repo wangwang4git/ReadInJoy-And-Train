@@ -44,7 +44,9 @@ public class UsernameSearchHistoryModel {
         Date now = new Date();
         values.put(SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_UPDATED_AT, now.getTime());
 
-        return db.insert(SearchHistory.UsernameSearchHistoryTable.TABLE_NAME, null, values);
+        long id = db.insert(SearchHistory.UsernameSearchHistoryTable.TABLE_NAME, null, values);
+        db.close();
+        return id;
     }
 
     public boolean updateInfoIntoDB(String username) {
@@ -64,6 +66,8 @@ public class UsernameSearchHistoryModel {
                 selection,
                 selectionArgs
         );
+
+        db.close();
 
         return count > 0 ;
     }
@@ -87,6 +91,7 @@ public class UsernameSearchHistoryModel {
 
         boolean res = cursor.getCount() > 0;
         cursor.close();
+        db.close();
         return res ;
     }
 
@@ -132,6 +137,7 @@ public class UsernameSearchHistoryModel {
         }
 
         cursor.close();
+        db.close();
     }
 
 }

@@ -39,14 +39,17 @@ public class MainActivity extends AppCompatActivity {
     private String lowercaseUsername;
     private EditText editText;
     private ViewGroup backgroundView;
-    private ListView searchHistoryListView;
+    private ListView usernameHistoryListView;
+    private ListView bookNameHistoryListView;
     private Toolbar mToolbar;
     private Context mContext;
     private SearchHistory.SearchHistoryDBHelper searchHistoryDBHelper;
     private UsernameSearchHistoryModel usernameModel;
     private BookNameSearchHistoryModel bookNameModel;
     private List<String> usernameList;
-    private ArrayAdapter adapter;
+    private List<String> bookNameList;
+    private ArrayAdapter usernameAdapter;
+    private ArrayAdapter bookNameAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,10 +67,13 @@ public class MainActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.myToolbar);
         editText = (EditText) findViewById(R.id.username);
         backgroundView = (ViewGroup) findViewById(R.id.backgroundView);
-        searchHistoryListView = (ListView) findViewById(R.id.search_history);
+        usernameHistoryListView = (ListView) findViewById(R.id.search_history);
+        bookNameHistoryListView = (ListView) findViewById(R.id.book_name_history_list_view);
         searchHistoryDBHelper = new SearchHistory.SearchHistoryDBHelper(this);
         usernameList = new ArrayList<>();
-        adapter = new ArrayAdapter<String>(mContext, R.layout.username_item, usernameList);
+        usernameAdapter = new ArrayAdapter<String>(mContext, R.layout.username_item, usernameList);
+        bookNameList = new ArrayList<>();
+        bookNameAdapter = new ArrayAdapter<String>(mContext, R.layout.book_name_item, bookNameList);
         final InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
         // Init Toolbar
@@ -80,12 +86,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Init search book name history
         bookNameModel = new BookNameSearchHistoryModel(mContext);
+        bookNameModel.setBookNameList(bookNameList);
 
         backgroundView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    bookNameHistoryListView.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -95,23 +103,48 @@ public class MainActivity extends AppCompatActivity {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     usernameModel.getInfoFromDB();
-                    adapter.notifyDataSetChanged();
-                    searchHistoryListView.setVisibility(View.VISIBLE);
+                    usernameAdapter.notifyDataSetChanged();
+                    usernameHistoryListView.setVisibility(View.VISIBLE);
                 } else {
-                    searchHistoryListView.setVisibility(View.INVISIBLE);
+                    usernameHistoryListView.setVisibility(View.INVISIBLE);
                 }
             }
         });
 
         // Init SearchHistory ListView
-        searchHistoryListView.setAdapter(adapter);
-        searchHistoryListView.setDividerHeight(2);
-        searchHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        usernameHistoryListView.setAdapter(usernameAdapter);
+        usernameHistoryListView.setDividerHeight(2);
+        usernameHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 username = usernameList.get(position);
                 editText.setText(username);
                 jumpToBookList();
+            }
+        });
+
+        // Init bookName search history ListView
+
+        bookNameHistoryListView.setAdapter(bookNameAdapter);
+        bookNameHistoryListView.setDividerHeight(2);
+        bookNameHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(mContext, RecyclerViewActivity.class);
+                String searchBookName = bookNameList.get(position);
+                intent.putExtra(Constant.SEARCH_KEY, searchBookName);
+
+                if (searchBookName != null && !searchBookName.isEmpty()) {
+                    bookNameModel.insert(searchBookName);
+                }
+
+                if (searchBookName != null && !searchBookName.isEmpty()) {
+                    String jsonString = getCacheJSONString(Constant.SEARCH_BOOK_CACHE_FILE_PREFIX + searchBookName.toLowerCase());
+                    if (jsonString != null && !jsonString.isEmpty()) {
+                        intent.putExtra(Constant.BOOK_JSON_KEY, jsonString);
+                    }
+                }
+                startActivity(intent);
             }
         });
     }
@@ -120,7 +153,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         usernameModel.getInfoFromDB();
-        adapter.notifyDataSetChanged();
+        usernameAdapter.notifyDataSetChanged();
+
+        bookNameModel.get();
+        bookNameAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -154,13 +190,21 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(mContext, "Please enter key words.", Toast.LENGTH_SHORT).show();
                 }
 
-
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
+            }
+        });
+
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bookNameHistoryListView.setVisibility(View.VISIBLE);
+                bookNameModel.get();
+                bookNameAdapter.notifyDataSetChanged();
             }
         });
 
