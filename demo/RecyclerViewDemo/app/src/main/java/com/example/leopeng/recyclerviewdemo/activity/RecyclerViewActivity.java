@@ -45,7 +45,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private ArrayList<Book> bookList;
     private static int cacheSize = 8 * 1024 * 1024;
     LruCache<String, Bitmap> bitmapLruCache;
-    public boolean isLoading = true;
+    public boolean isLoading = false;
     public boolean isNoMore = false;
 
     public final static String RECYCLER_VIEW_ACTIVITY_TAG = "RecyclerViewActivity";
@@ -72,6 +72,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
                 commonJsonTask.cacheKey = Constant.SEARCH_BOOK_CACHE_FILE_PREFIX + searchBookName;
             }
             commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,updateURL);
+            isLoading = true;
         }
     }
 
@@ -121,12 +122,17 @@ public class RecyclerViewActivity extends AppCompatActivity {
             searchBookName = searchBookName.toLowerCase();
             updateURL = BookRequest.getSearchBooksURL(searchBookName);
             Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "search book: " + searchBookName);
-            updateBookList(JSONParse(intent.getStringExtra(Constant.BOOK_JSON_KEY)));
+            String jsonStrong = intent.getStringExtra(Constant.BOOK_JSON_KEY);
+            if (jsonStrong != null && !jsonStrong.isEmpty()) {
+                updateBookList(JSONParse(intent.getStringExtra(Constant.BOOK_JSON_KEY)));
+            }
         } else {
             username = intent.getStringExtra(Constant.USERNAME_KEY);
             updateURL = BookRequest.getUserCollectionsURL(username);
             String jsonString = intent.getStringExtra(Constant.BOOK_JSON_KEY);
-            updateBookList(JSONParse(jsonString));
+            if (jsonString != null && !jsonString.isEmpty()) {
+                updateBookList(JSONParse(jsonString));
+            }
             Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "bookList Size: " + bookList.size());
         }
 

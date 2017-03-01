@@ -200,13 +200,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
+//        searchView.setOnSearchClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//            }
+//        });
+
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View v) {
-                bookNameHistoryListView.setVisibility(View.VISIBLE);
-                bookNameList.clear();
-                bookNameList.addAll(bookNameModel.get());
-                bookNameAdapter.notifyDataSetChanged();
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    bookNameHistoryListView.setVisibility(View.VISIBLE);
+                    bookNameList.clear();
+                    bookNameList.addAll(bookNameModel.get());
+                    bookNameAdapter.notifyDataSetChanged();
+                } else {
+                    bookNameHistoryListView.setVisibility(View.INVISIBLE);
+                }
             }
         });
 

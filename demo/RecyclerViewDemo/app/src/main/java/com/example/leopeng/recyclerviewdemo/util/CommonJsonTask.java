@@ -101,6 +101,10 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
                     }
                 });
             }
+            if (mContext instanceof RecyclerViewActivity) {
+                ((RecyclerViewActivity) mContext).isLoading = false;
+                ((RecyclerViewActivity) mContext).isNoMore = false;
+            }
         } catch (SocketTimeoutException e) {
             if (running) {
                 ((Activity) mContext).runOnUiThread(new Runnable() {
@@ -109,6 +113,10 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
                         Toast.makeText(mContext, "Please check your network setting.", Toast.LENGTH_LONG).show();
                     }
                 });
+            }
+            if (mContext instanceof RecyclerViewActivity) {
+                ((RecyclerViewActivity) mContext).isLoading = false;
+                ((RecyclerViewActivity) mContext).isNoMore = false;
             }
         } catch (IOException e) {
             e.printStackTrace();
