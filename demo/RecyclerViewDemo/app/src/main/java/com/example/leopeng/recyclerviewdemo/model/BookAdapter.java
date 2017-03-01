@@ -74,6 +74,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public BookAdapter(ArrayList<Book> books, LruCache cache) {
         this.books = books;
         this.cache = cache;
+        setHasStableIds(true);
     }
 
     @Override
@@ -102,6 +103,11 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         return TYPE_ITEM;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     private boolean isPositionHeader (int position) {
