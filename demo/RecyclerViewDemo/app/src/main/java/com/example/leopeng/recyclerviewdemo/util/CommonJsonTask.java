@@ -50,13 +50,15 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
         this.mContext = context;
         this.TAG = CommonJsonTask.class.getName();
         this.loadToast = new LoadToast(context);
-        loadToast.setTranslationY(180);
-        loadToast.show();
+        loadToast.setTranslationY(200);
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        if (!isAddToHead) {
+            loadToast.show();
+        }
     }
 
     @Override
@@ -148,7 +150,8 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
                 }
             }
             ((RecyclerViewActivity) mContext).isLoading = false;
-            if ( s != null) {
+
+            if (s != null) {
                 loadToast.success();
             } else {
                 final Handler handler = new Handler();
@@ -159,6 +162,8 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
                     }
                 }, 300);
             }
+
+            ((RecyclerViewActivity) mContext).refreshFinish();
         }
 
         if (mContext instanceof MainActivity) {

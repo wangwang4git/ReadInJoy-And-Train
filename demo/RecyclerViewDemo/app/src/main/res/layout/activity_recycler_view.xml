@@ -20,14 +20,22 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <android.support.v7.widget.RecyclerView
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recyclerView"
-        android:scrollbars="vertical"
-        android:background="#ECEFF1"
+        android:layout_height="wrap_content"
+        android:id="@+id/my_swipe_refresh_layout"
         android:layout_marginTop="54dp">
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recyclerView"
+            android:scrollbars="vertical"
+            android:background="#ECEFF1"
+            >
+
+        </android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
 
 </RelativeLayout>

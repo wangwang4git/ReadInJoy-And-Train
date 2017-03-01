@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -43,6 +44,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private String updateURL;
     private String searchBookName;
     private Context mContext;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private ArrayList<Book> bookList;
     private static int cacheSize = 8 * 1024 * 1024;
@@ -96,6 +98,34 @@ public class RecyclerViewActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        // Init SwipeRefreshLayout
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.my_swipe_refresh_layout);
+        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                int totalItemCount = layoutManager.getItemCount();
+
+                CommonJsonTask commonJsonTask = new CommonJsonTask(mContext);
+                commonJsonTask.isAdd = true;
+                commonJsonTask.isAddToHead = true;
+                String url = "";
+                if (username != null && !username.isEmpty()) {
+                    url = BookRequest.getUserCollectionsURL(username, totalItemCount);
+                } else if (searchBookName != null && !searchBookName.isEmpty()) {
+                    url = BookRequest.getSearchBooksURL(searchBookName, totalItemCount);
+                }
+
+                commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+                isLoading = true;
+            }
+        });
+
         // Add RecyclerView Item Decoration
         VerticalDividerItemDecoration verticalDividerItemDecoration = new VerticalDividerItemDecoration(10);
         recyclerView.addItemDecoration(verticalDividerItemDecoration);
@@ -114,6 +144,11 @@ public class RecyclerViewActivity extends AppCompatActivity {
         // Add onScrollListener
         recyclerView.addOnScrollListener(mScrollListener);
     }
+
+    public void refreshFinish() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
 
     @Override
     protected void onStart() {
