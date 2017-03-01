@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -48,6 +50,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     LruCache<String, Bitmap> bitmapLruCache;
     public boolean isLoading = false;
     public boolean isNoMore = false;
+    public boolean network = true;
 
     public final static String RECYCLER_VIEW_ACTIVITY_TAG = "RecyclerViewActivity";
 
@@ -65,15 +68,24 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
         boolean firstLoad = getIntent().getBooleanExtra(Constant.FIRST_LOAD_KEY, false);
         if (updateURL != null && !updateURL.isEmpty() && !firstLoad) {
-            CommonJsonTask commonJsonTask = new CommonJsonTask(RecyclerViewActivity.this);
-            if (username != null && !username.isEmpty()) {
-                commonJsonTask.cacheKey = username;
-            }
-            if (searchBookName != null && !searchBookName.isEmpty()) {
-                commonJsonTask.cacheKey = Constant.SEARCH_BOOK_CACHE_FILE_PREFIX + searchBookName;
-            }
-            commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,updateURL);
-            isLoading = true;
+
+
+            //Delay run
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    final CommonJsonTask commonJsonTask = new CommonJsonTask(RecyclerViewActivity.this);
+                    if (username != null && !username.isEmpty()) {
+                        commonJsonTask.cacheKey = username;
+                    }
+                    if (searchBookName != null && !searchBookName.isEmpty()) {
+                        commonJsonTask.cacheKey = Constant.SEARCH_BOOK_CACHE_FILE_PREFIX + searchBookName;
+                    }
+                    commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,updateURL);
+                    isLoading = true;
+                }
+            }, 300);
         }
     }
 
@@ -97,6 +109,11 @@ public class RecyclerViewActivity extends AppCompatActivity {
         // Init Toolbar
         myToolbar= (Toolbar) findViewById(R.id.myRecyclerViewToolbar);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         // Init Image Cache
         this.bitmapLruCache = new LruCache<>(cacheSize);
 
@@ -116,15 +133,19 @@ public class RecyclerViewActivity extends AppCompatActivity {
         }
         setSupportActionBar(myToolbar);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        network = true;
     }
 
     private void handleIntent(Intent intent) {
         searchBookName = intent.getStringExtra(Constant.SEARCH_KEY);
-        if (searchBookName!= null && !searchBookName.isEmpty()) {
+        username = intent.getStringExtra(Constant.USERNAME_KEY);
+        if ( searchBookName != null && !searchBookName.isEmpty() ) {
             searchBookName = searchBookName.toLowerCase();
             updateURL = BookRequest.getSearchBooksURL(searchBookName);
             Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "search book: " + searchBookName);
@@ -132,16 +153,13 @@ public class RecyclerViewActivity extends AppCompatActivity {
             if (jsonStrong != null && !jsonStrong.isEmpty()) {
                 updateBookList(JSONParse(intent.getStringExtra(Constant.BOOK_JSON_KEY)));
             }
-        } else {
-            username = intent.getStringExtra(Constant.USERNAME_KEY);
+        } else if ( username != null && !username.isEmpty() ){
             updateURL = BookRequest.getUserCollectionsURL(username);
             String jsonString = intent.getStringExtra(Constant.BOOK_JSON_KEY);
             if (jsonString != null && !jsonString.isEmpty()) {
                 updateBookList(JSONParse(jsonString));
             }
-            Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "bookList Size: " + bookList.size());
         }
-
     }
 
     /**
@@ -278,10 +296,24 @@ public class RecyclerViewActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-    public void addBookList(List<Book> newBookList) {
+    public void addBookListToEnd(List<Book> newBookList) {
         for (Book book : newBookList) {
             if (!bookList.contains(book)) {
                 bookList.add(book);
+            }
+        }
+
+        if (newBookList.size() < 20) {
+            isNoMore = true;
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+
+    public void addBookListToHead(List<Book> newBookList) {
+        for (Book book : newBookList) {
+            if (!bookList.contains(book)) {
+                bookList.add(0, book);
             }
         }
 
@@ -296,9 +328,11 @@ public class RecyclerViewActivity extends AppCompatActivity {
        @Override
        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
-           if (isLoading || isNoMore) {
+           if (isLoading || isNoMore || !network) {
                return;
            }
+
+//           Log.d(RecyclerViewActivity.class.getName(), "dy: " + dy);
 
            int visibleItemCount = layoutManager.getChildCount();
            int totalItemCount = layoutManager.getItemCount();

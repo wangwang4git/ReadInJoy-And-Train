@@ -1,14 +1,16 @@
 package com.example.leopeng.recyclerviewdemo.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.leopeng.recyclerviewdemo.activity.MainActivity;
 import com.example.leopeng.recyclerviewdemo.activity.RecyclerViewActivity;
+import com.example.leopeng.recyclerviewdemo.model.Book;
+
+import net.steamcrafted.loadtoast.LoadToast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * Created by leopeng on 21/02/2017.
@@ -34,22 +37,26 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     private volatile boolean running = true;
     private volatile boolean network = true;
     private Context mContext;
+    private LoadToast loadToast;
 
     public String cacheKey;
     public String searchKey;
     public boolean isAdd = false;
+    public boolean isAddToHead = false;
 
     private String TAG;
 
     public CommonJsonTask(Context context) {
         this.mContext = context;
         this.TAG = CommonJsonTask.class.getName();
+        this.loadToast = new LoadToast(context);
+        loadToast.setTranslationY(180);
+        loadToast.show();
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        Toast.makeText(mContext, "Loading ...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -93,30 +100,17 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
             e.printStackTrace();
         } catch (UnknownHostException e) {
             network = false;
-            if (running) {
-                ((Activity) mContext).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(mContext, "Please check your network setting.", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
             if (mContext instanceof RecyclerViewActivity) {
                 ((RecyclerViewActivity) mContext).isLoading = false;
                 ((RecyclerViewActivity) mContext).isNoMore = false;
+                ((RecyclerViewActivity) mContext).network = network;
             }
         } catch (SocketTimeoutException e) {
-            if (running) {
-                ((Activity) mContext).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(mContext, "Please check your network setting.", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
+            network = false;
             if (mContext instanceof RecyclerViewActivity) {
                 ((RecyclerViewActivity) mContext).isLoading = false;
                 ((RecyclerViewActivity) mContext).isNoMore = false;
+                ((RecyclerViewActivity) mContext).network = network;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -141,13 +135,30 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         if (mContext instanceof RecyclerViewActivity) {
-            if (isAdd) {
-                ((RecyclerViewActivity) mContext).addBookList(((RecyclerViewActivity) mContext).JSONParse(s));
-            } else {
-                ((RecyclerViewActivity) mContext).updateBookList(((RecyclerViewActivity) mContext).JSONParse(s));
+            List<Book> list = ((RecyclerViewActivity) mContext).JSONParse(s);
+            if (list != null && !list.isEmpty()) {
+                if (isAdd) {
+                    if (isAddToHead) {
+                        ((RecyclerViewActivity) mContext).addBookListToHead(list);
+                    } else {
+                        ((RecyclerViewActivity) mContext).addBookListToEnd(list);
+                    }
+                } else {
+                    ((RecyclerViewActivity) mContext).updateBookList(list);
+                }
             }
             ((RecyclerViewActivity) mContext).isLoading = false;
-            Toast.makeText(mContext, "Refresh Succeed", Toast.LENGTH_SHORT).show();
+            if ( s != null) {
+                loadToast.success();
+            } else {
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadToast.error();
+                    }
+                }, 300);
+            }
         }
 
         if (mContext instanceof MainActivity) {
