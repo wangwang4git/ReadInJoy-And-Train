@@ -37,6 +37,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
 
     public String cacheKey;
     public String searchKey;
+    public boolean isAdd = false;
 
     private String TAG;
 
@@ -132,7 +133,12 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         if (mContext instanceof RecyclerViewActivity) {
-            ((RecyclerViewActivity) mContext).updateBookList(((RecyclerViewActivity) mContext).JSONParse(s));
+            if (isAdd) {
+                ((RecyclerViewActivity) mContext).addBookList(((RecyclerViewActivity) mContext).JSONParse(s));
+            } else {
+                ((RecyclerViewActivity) mContext).updateBookList(((RecyclerViewActivity) mContext).JSONParse(s));
+            }
+            ((RecyclerViewActivity) mContext).isLoading = false;
             Toast.makeText(mContext, "Refresh Succeed", Toast.LENGTH_SHORT).show();
         }
 

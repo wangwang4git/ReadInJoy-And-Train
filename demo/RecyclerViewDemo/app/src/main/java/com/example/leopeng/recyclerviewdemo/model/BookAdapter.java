@@ -130,7 +130,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(RecyclerViewActivity.RECYCLERVIEWACTIVITYTAG, "Click");
+                    Log.d(RecyclerViewActivity.RECYCLER_VIEW_ACTIVITY_TAG, "Click");
                     Bundle args = new Bundle();
                     args.putString(bookNameKey, book.getBookName());
                     args.putString(authorNameKey, book.getAuthor());

@@ -1,5 +1,6 @@
 package com.example.leopeng.recyclerviewdemo.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -39,18 +40,21 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private String username;
     private String updateURL;
     private String searchBookName;
+    private Context mContext;
 
     private ArrayList<Book> bookList;
     private static int cacheSize = 8 * 1024 * 1024;
     LruCache<String, Bitmap> bitmapLruCache;
+    public boolean isLoading = true;
+    public boolean isNoMore = false;
 
-    public final static String RECYCLERVIEWACTIVITYTAG = "RecyclerViewActivity";
-    public final static String DETAILKEY = "DETAILKEY";
+    public final static String RECYCLER_VIEW_ACTIVITY_TAG = "RecyclerViewActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycler_view);
+        mContext = this;
 
         init();
 
@@ -90,11 +94,25 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
         // Init Toolbar
         myToolbar= (Toolbar) findViewById(R.id.myRecyclerViewToolbar);
-        myToolbar.setTitle("BookLists");
-        setSupportActionBar(myToolbar);
 
         // Init Image Cache
         this.bitmapLruCache = new LruCache<>(cacheSize);
+
+        // Add onScrollListener
+        recyclerView.addOnScrollListener(mScrollListener);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (searchBookName != null && !searchBookName.isEmpty()) {
+           myToolbar.setTitle(searchBookName + " Search Results: ");
+        } else if (username != null && !username.isEmpty()) {
+            myToolbar.setTitle(username + " Collected Books: ");
+        }
+
+        setSupportActionBar(myToolbar);
     }
 
     private void handleIntent(Intent intent) {
@@ -102,14 +120,14 @@ public class RecyclerViewActivity extends AppCompatActivity {
         if (searchBookName!= null && !searchBookName.isEmpty()) {
             searchBookName = searchBookName.toLowerCase();
             updateURL = BookRequest.getSearchBooksURL(searchBookName);
-            Log.d(RECYCLERVIEWACTIVITYTAG, "search book: " + searchBookName);
+            Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "search book: " + searchBookName);
             updateBookList(JSONParse(intent.getStringExtra(Constant.BOOK_JSON_KEY)));
         } else {
             username = intent.getStringExtra(Constant.USERNAME_KEY);
             updateURL = BookRequest.getUserCollectionsURL(username);
             String jsonString = intent.getStringExtra(Constant.BOOK_JSON_KEY);
             updateBookList(JSONParse(jsonString));
-            Log.d(RECYCLERVIEWACTIVITYTAG, "bookList Size: " + bookList.size());
+            Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "bookList Size: " + bookList.size());
         }
 
     }
@@ -128,9 +146,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
                 String start = json.getString("start");
                 String total = json.getString("total");
 
-                Log.d(RECYCLERVIEWACTIVITYTAG, "count: " + count);
-                Log.d(RECYCLERVIEWACTIVITYTAG, "start: " + start);
-                Log.d(RECYCLERVIEWACTIVITYTAG, "total: " + total);
+                Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "count: " + count);
+                Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "start: " + start);
+                Log.d(RECYCLER_VIEW_ACTIVITY_TAG, "total: " + total);
 
                 JSONArray jsonArray = null;
 
@@ -238,9 +256,56 @@ public class RecyclerViewActivity extends AppCompatActivity {
     }
 
     public void updateBookList(List<Book> newBookList) {
+        if (newBookList.size() < 20) {
+            isNoMore = true;
+        }
+
         bookList.clear();
         bookList.addAll(newBookList);
 
         adapter.notifyDataSetChanged();
     }
+
+    public void addBookList(List<Book> newBookList) {
+        for (Book book : newBookList) {
+            if (!bookList.contains(book)) {
+                bookList.add(book);
+            }
+        }
+
+        if (newBookList.size() < 20) {
+            isNoMore = true;
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+
+   protected RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+       @Override
+       public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+           if (isLoading || isNoMore) {
+               return;
+           }
+
+           int visibleItemCount = layoutManager.getChildCount();
+           int totalItemCount = layoutManager.getItemCount();
+           int pastVisibleItemCount = ((LinearLayoutManager)layoutManager).findFirstVisibleItemPosition();
+
+           if (pastVisibleItemCount + visibleItemCount + 8 >= totalItemCount) {
+               CommonJsonTask commonJsonTask = new CommonJsonTask(mContext);
+               commonJsonTask.isAdd = true;
+               String url = "";
+               if (username != null && !username.isEmpty()) {
+                   url = BookRequest.getUserCollectionsURL(username, totalItemCount);
+               } else if (searchBookName != null && !searchBookName.isEmpty()) {
+                   url = BookRequest.getSearchBooksURL(searchBookName, totalItemCount);
+               }
+
+               commonJsonTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+               isLoading = true;
+           }
+
+       }
+   };
 }

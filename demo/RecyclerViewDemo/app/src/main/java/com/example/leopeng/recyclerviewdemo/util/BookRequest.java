@@ -12,7 +12,15 @@ public class BookRequest {
     }
 
     public static String getSearchBooksURL(String keyword) {
-        return (baseURL + "search") + getRangeParasString(20, 0) + getSearchParasString(keyword);
+        return (baseURL + "search" + getRangeParasString(20, 0) + getSearchParasString(keyword));
+    }
+
+    public static String getUserCollectionsURL(String username, int start) {
+       return (baseURL + "user/" + username + "/collections" + getRangeParasString(20, start));
+    }
+
+    public static String getSearchBooksURL(String keyword, int start) {
+        return (baseURL + "search" + getRangeParasString(20, start) + getSearchParasString(keyword));
     }
 
     /**
