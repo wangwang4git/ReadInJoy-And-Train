@@ -3,12 +3,15 @@ package com.example.leopeng.recyclerviewdemo.util;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
 import com.example.leopeng.recyclerviewdemo.activity.MainActivity;
 import com.example.leopeng.recyclerviewdemo.activity.RecyclerViewActivity;
 import com.example.leopeng.recyclerviewdemo.model.Book;
 
+
+import net.steamcrafted.loadtoast.LoadToast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +38,7 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     private volatile boolean running = true;
     private volatile boolean network = true;
     private Context mContext;
+    private LoadToast loadToast;
 
     public String cacheKey;
     public String searchKey;
@@ -46,11 +50,17 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
     public CommonJsonTask(Context context) {
         this.mContext = context;
         this.TAG = CommonJsonTask.class.getName();
+        this.loadToast = new LoadToast(context);
+        loadToast.setTranslationY(200);
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+
+        if (!isAddToHead) {
+            loadToast.show();
+        }
     }
 
     @Override
@@ -142,6 +152,19 @@ public class CommonJsonTask extends AsyncTask<String, Integer, String> {
                 }
             }
             ((RecyclerViewActivity) mContext).isLoading = false;
+
+            final Handler handler = new Handler();
+            final String copyS = s;
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (copyS != null && !copyS.isEmpty()) {
+                        loadToast.success();
+                    } else {
+                        loadToast.error();
+                    }
+                }
+            }, 200);
 
             ((RecyclerViewActivity) mContext).refreshFinish();
         }
