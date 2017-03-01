@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.MenuItem;
 
 import com.example.leopeng.recyclerviewdemo.util.BookRequest;
 import com.example.leopeng.recyclerviewdemo.util.CommonJsonTask;
@@ -107,13 +108,18 @@ public class RecyclerViewActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        // Set up my toolbar
         if (searchBookName != null && !searchBookName.isEmpty()) {
-           myToolbar.setTitle(searchBookName + " Search Results: ");
+            myToolbar.setTitle(searchBookName + " Search Results: ");
         } else if (username != null && !username.isEmpty()) {
             myToolbar.setTitle(username + " Collected Books: ");
         }
-
         setSupportActionBar(myToolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     private void handleIntent(Intent intent) {
@@ -314,4 +320,14 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
        }
    };
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }

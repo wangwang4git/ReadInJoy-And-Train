@@ -96,11 +96,11 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (isPositionHeader(position)) {
-            return TYPE_HEADER;
-        } else if (isPositionFooter(position))  {
-            return TYPE_FOOTER;
-        }
+//        if (isPositionHeader(position)) {
+//            return TYPE_HEADER;
+//        } else if (isPositionFooter(position))  {
+//            return TYPE_FOOTER;
+//        }
 
         return TYPE_ITEM;
     }
@@ -122,7 +122,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder holder,final int position) {
         if (holder instanceof ItemViewHolder) {
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
-            final Book book = books.get(position - 1);
+            final Book book = books.get(position);
 
             itemViewHolder.bookName.setText(book.getBookName());
             itemViewHolder.authorName.setText(book.getAuthor());
@@ -165,7 +165,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return books.size() + 1;
+        return books.size();
     }
 
     @Override
