@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -109,11 +108,6 @@ public class RecyclerViewActivity extends AppCompatActivity {
         // Init Toolbar
         myToolbar= (Toolbar) findViewById(R.id.myRecyclerViewToolbar);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
         // Init Image Cache
         this.bitmapLruCache = new LruCache<>(cacheSize);
 
@@ -133,6 +127,10 @@ public class RecyclerViewActivity extends AppCompatActivity {
         }
         setSupportActionBar(myToolbar);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     @Override
