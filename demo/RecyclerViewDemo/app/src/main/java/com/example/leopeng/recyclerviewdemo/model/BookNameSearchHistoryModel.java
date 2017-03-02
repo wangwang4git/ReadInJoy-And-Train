@@ -97,7 +97,7 @@ public class BookNameSearchHistoryModel {
         };
 
         String sortOrder = SearchHistory.BookNameSearchHistoryTable.COLUMN_NAME_UPDATED_AT + " DESC";
-        String limits = "6";
+//        String limits = "6";
 
         Cursor cursor = db.query(
                 SearchHistory.BookNameSearchHistoryTable.TABLE_NAME,
@@ -107,7 +107,7 @@ public class BookNameSearchHistoryModel {
                 null,
                 null,
                 sortOrder,
-                limits
+                null
         );
 
         List<String> list = new ArrayList<>();

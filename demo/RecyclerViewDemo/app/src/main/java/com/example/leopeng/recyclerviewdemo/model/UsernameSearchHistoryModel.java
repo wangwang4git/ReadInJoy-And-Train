@@ -104,7 +104,7 @@ public class UsernameSearchHistoryModel {
         };
 
         String sortOrder = SearchHistory.UsernameSearchHistoryTable.COLUMN_NAME_UPDATED_AT + " DESC";
-        String limits = "5";
+//        String limits = "5";
 
         Cursor cursor = db.query(
                 SearchHistory.UsernameSearchHistoryTable.TABLE_NAME,
@@ -114,7 +114,7 @@ public class UsernameSearchHistoryModel {
                 null,
                 null,
                 sortOrder,
-                limits
+                null
         );
 
         if (usernameList == null) {
