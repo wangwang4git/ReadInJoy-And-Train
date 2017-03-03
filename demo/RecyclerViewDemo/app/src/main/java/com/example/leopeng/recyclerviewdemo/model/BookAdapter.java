@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.leopeng.recyclerviewdemo.activity.DetailViewActivity;
+import com.example.leopeng.recyclerviewdemo.util.Constant;
 import com.example.leopeng.recyclerviewdemo.util.ImageDownloaderTask;
 import com.example.leopeng.recyclerviewdemo.R;
 import com.example.leopeng.recyclerviewdemo.activity.RecyclerViewActivity;
@@ -28,16 +29,6 @@ import java.util.ArrayList;
 public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private ArrayList<Book> books;
     private LruCache<String, Bitmap> cache;
-
-    public final static String bookAdapterKey = "bookAdapter";
-    public final static String bookNameKey = "bookName";
-    public final static String authorNameKey = "authorName";
-    public final static String summaryKey = "summary";
-    public final static String imageURLKey = "imageURL";
-    public final static String statusKey = "status";
-    public final static String statusColorKey = "statusColor";
-    public final static String averageKey = "average";
-    public final static String tagKey = "tag";
 
     public static final int TYPE_HEADER = 0;
     public static final int TYPE_ITEM = 1;
@@ -138,17 +129,17 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 public void onClick(View v) {
                     Log.d(RecyclerViewActivity.RECYCLER_VIEW_ACTIVITY_TAG, "Click");
                     Bundle args = new Bundle();
-                    args.putString(bookNameKey, book.getBookName());
-                    args.putString(authorNameKey, book.getAuthor());
-                    args.putString(summaryKey, book.getBookDescription());
-                    args.putString(imageURLKey, book.getImageURL());
-                    args.putString(averageKey, book.getRating().average);
-                    args.putString(statusKey, book.getStatus());
-                    args.putInt(statusColorKey, book.getStatusColor());
-                    args.putStringArrayList(tagKey, (ArrayList<String>)book.getStringTags());
+                    args.putString(Constant.BOOK_NAME_KEY, book.getBookName());
+                    args.putString(Constant.AUTHOR_NAME_KEY, book.getAuthor());
+                    args.putString(Constant.SUMMARY_KEY, book.getBookDescription());
+                    args.putString(Constant.IMAGE_URL_KEY, book.getImageURL());
+                    args.putString(Constant.AVERAGE_KEY, book.getRating().average);
+                    args.putString(Constant.STATUS_KEY, book.getStatus());
+                    args.putInt(Constant.STATUS_COLOR_KEY, book.getStatusColor());
+                    args.putStringArrayList(Constant.TAG_KEY, (ArrayList<String>)book.getStringTags());
 
                     Intent intent = new Intent(v.getContext(), DetailViewActivity.class);
-                    intent.putExtra(bookAdapterKey, args);
+                    intent.putExtra(Constant.BOOK_ADAPTER_KEY, args);
                     v.getContext().startActivity(intent);
                 }
             });

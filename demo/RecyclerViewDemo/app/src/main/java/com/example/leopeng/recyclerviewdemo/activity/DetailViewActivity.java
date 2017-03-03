@@ -1,5 +1,6 @@
 package com.example.leopeng.recyclerviewdemo.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.example.leopeng.recyclerviewdemo.util.Constant;
 import com.example.leopeng.recyclerviewdemo.util.ImageDownloaderTask;
 import com.example.leopeng.recyclerviewdemo.R;
 import com.example.leopeng.recyclerviewdemo.model.BookAdapter;
@@ -61,32 +63,35 @@ public class DetailViewActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        args = intent.getBundleExtra(BookAdapter.bookAdapterKey);
+        args = intent.getBundleExtra(Constant.BOOK_ADAPTER_KEY);
 
-        bookName.setText(args.getString(BookAdapter.bookNameKey));
-        authorName.setText(args.getString(BookAdapter.authorNameKey));
-        summary.setText(args.getString(BookAdapter.summaryKey));
+        if (args != null && !args.isEmpty()) {
+            bookName.setText(args.getString(Constant.BOOK_NAME_KEY));
+            authorName.setText(args.getString(Constant.AUTHOR_NAME_KEY));
+            summary.setText(args.getString(Constant.SUMMARY_KEY));
 
-        status.setText(args.getString(BookAdapter.statusKey));
-        status.setTextColor(args.getInt(BookAdapter.statusColorKey));
+            status.setText(args.getString(Constant.STATUS_KEY));
+            status.setTextColor(args.getInt(Constant.STATUS_COLOR_KEY));
 
-        String average = args.getString(BookAdapter.averageKey);
-        if (average != null) {
-            Log.d(DetailViewActivity.class.getName(), "Rating: " + Float.parseFloat(average));
-            ratingBar.setRating(Float.parseFloat(average) / 2);
-            ratingValue.setText(average);
+            String average = args.getString(Constant.AVERAGE_KEY);
+            if (average != null) {
+                Log.d(DetailViewActivity.class.getName(), "Rating: " + Float.parseFloat(average));
+                ratingBar.setRating(Float.parseFloat(average) / 2);
+                ratingValue.setText(average);
+            }
+
+            setTitle(args.getString(Constant.BOOK_NAME_KEY));
+
+            if (bookCover != null) {
+                new ImageDownloaderTask(bookCover).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, args.getString(Constant.IMAGE_URL_KEY));
+            }
+
+            // tags
+            List<String> list = args.getStringArrayList(Constant.TAG_KEY);
+            if (list != null && !list.isEmpty()) {
+                tagGroup.setTags(list);
+            }
         }
 
-        setTitle(args.getString(BookAdapter.bookNameKey));
-
-        if (bookCover != null) {
-            new ImageDownloaderTask(bookCover).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, args.getString(BookAdapter.imageURLKey));
-        }
-
-        // tags
-        List<String> list = args.getStringArrayList(BookAdapter.tagKey);
-        if (list != null && !list.isEmpty()) {
-            tagGroup.setTags(list);
-        }
     }
 }
