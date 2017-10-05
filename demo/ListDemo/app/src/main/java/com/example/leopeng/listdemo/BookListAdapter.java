@@ -36,6 +36,13 @@ public class BookListAdapter extends BaseAdapter {
         return position;
     }
 
+    public static class ViewHolder {
+        TextView bookName;
+        TextView author;
+        TextView bookDescription;
+        TextView status;
+    }
+
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.simple_list_item, parent, false);

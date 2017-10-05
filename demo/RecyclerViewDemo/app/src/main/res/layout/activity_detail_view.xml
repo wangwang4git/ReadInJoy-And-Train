@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:id="@+id/bookCover"
+            android:layout_marginTop="15dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/status"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="30dp"
+            android:layout_alignParentRight="true"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/bookName"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/bookCover"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="30dp"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/authorName"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/bookName"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="30dp"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/authorName"
+            android:id="@+id/ratingGroup"
+            android:layout_centerHorizontal="true">
+
+            <RatingBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ratingBar"
+                android:layout_marginTop="20dp"
+                android:isIndicator="true"
+                android:clickable="false"
+                style="@style/Base.Widget.AppCompat.RatingBar.Indicator"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ratingValue"
+                android:layout_toRightOf="@+id/ratingBar"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="24dp"
+                android:textSize="22sp"
+                android:textStyle="italic"/>
+
+        </RelativeLayout>
+
+        <me.gujun.android.taggroup.TagGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tags"
+            android:layout_below="@+id/ratingGroup"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:layout_marginTop="30dp"
+            style="@style/TagGroup"
+            app:atg_pressedBackgroundColor="#FFFFFF"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/summary"
+            android:layout_below="@+id/tags"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="30dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:paddingBottom="20dp"
+            android:textSize="16sp"
+            android:lineSpacingExtra="5dp"/>
+
+    </RelativeLayout>
+
+</ScrollView>

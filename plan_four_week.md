@@ -10,7 +10,7 @@ leopeng、victorwwang
 #### 任务情况
 |任务编号|任务项|任务目标|完成进度|完成耗时|
 |:--:|:--:|:--:|:--:|:--:|
-|1|Android开发实战（四）|1.增加图书搜索页面，Demo增加Toolbar用于页面切换；2.搜索结果页支持跳转到图书详情页；3.上述页面均支持缓存、离线使用；4.创建Release证书，使用Release证书发布到应用宝；|TODO：|TODO：|
+|1|Android开发实战（四）|1.增加图书搜索页面，Demo增加Toolbar用于页面切换；2.搜索结果页支持跳转到图书详情页；3.上述页面均支持缓存、离线使用；4.创建Release证书，使用Release证书发布到应用宝；|90%|2d|
 |2|手Q看点业务代码熟悉(组件化分支)|TODO：|TODO：|TODO：|
 |3|看点Bug修复|TODO：|TODO：|TODO：|
 
@@ -22,7 +22,10 @@ leopeng、victorwwang
 #### 学习心得
 
 1. Android开发实战（四）
-> TODO：
+> - 增加图书搜索Toolbar，使用RecyclerView显示搜索结果
+> - 搜索结果页支持跳转到图书详情页
+> - 支持页面缓存及离线使用。
+> - 使用ListView显示用户搜索记录。
 
 2. 手Q看点业务代码熟悉(组件化分支)
 > TODO：
