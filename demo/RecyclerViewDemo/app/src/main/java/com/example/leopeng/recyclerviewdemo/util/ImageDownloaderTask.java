@@ -23,6 +23,7 @@ import java.net.URL;
 public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
     private final WeakReference<ImageView> imageViewWeakReference;
     private LruCache<String, Bitmap> bitmapLruCache;
+    private String url;
 
     public ImageDownloaderTask(ImageView imageView) {
         imageViewWeakReference = new WeakReference<>(imageView);
@@ -47,7 +48,7 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
         if (imageViewWeakReference != null) {
             ImageView imageView = imageViewWeakReference.get();
             if (imageView != null) {
-                if (bitmap != null) {
+                if (bitmap != null && imageView.getTag().equals(url)) {
                     imageView.setImageBitmap(bitmap);
                 } else {
                     imageView.setImageBitmap(null);
@@ -58,6 +59,7 @@ public class ImageDownloaderTask extends AsyncTask<String, Void, Bitmap> {
 
     private Bitmap downloadBitmap(String url) {
         if (url == null || url.isEmpty()) {return null;}
+        this.url = url;
         HttpURLConnection urlConnection = null;
         try {
             if (bitmapLruCache != null) {

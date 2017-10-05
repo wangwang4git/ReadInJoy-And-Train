@@ -83,6 +83,7 @@ public class DetailViewActivity extends AppCompatActivity {
             setTitle(args.getString(Constant.BOOK_NAME_KEY));
 
             if (bookCover != null) {
+                bookCover.setTag(args.getString(Constant.IMAGE_URL_KEY));
                 new ImageDownloaderTask(bookCover).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, args.getString(Constant.IMAGE_URL_KEY));
             }
 

@@ -121,6 +121,7 @@ public class BookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemViewHolder.status.setTextColor(book.getStatusColor());
             itemViewHolder.summary.setText(book.getShortBookDescription());
             if (itemViewHolder.imageView != null) {
+                itemViewHolder.imageView.setTag(book.getImageURL());
                 new ImageDownloaderTask(itemViewHolder.imageView).setBitmapLruCache(cache).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, book.getImageURL());
             }
 
